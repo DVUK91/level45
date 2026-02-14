@@ -431,3 +431,48 @@ a:hover{ text-decoration: underline; }
   margin-bottom: 10px;
   opacity: 0.5;
 }
+/* ===== MISSION HUB ===== */
+
+.mission-wrapper {
+  padding: 80px 10%;
+  text-align: center;
+}
+
+.page-title {
+  font-size: 32px;
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  opacity: 0.6;
+  margin-bottom: 60px;
+}
+
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.mission-card {
+  border: 1px solid #FF5E00;
+  padding: 40px;
+  transition: 0.3s ease;
+  cursor: pointer;
+  background: rgba(0,0,0,0.35);
+}
+
+.mission-card:hover {
+  box-shadow: 0 0 20px rgba(255, 94, 0, 0.4);
+  transform: translateY(-5px);
+}
+
+.mission-number {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 10px;
+  opacity: 0.6;
+}
