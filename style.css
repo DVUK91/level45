@@ -493,3 +493,22 @@ a:hover{ text-decoration: underline; }
     padding: 26px;
   }
 }
+.topbar{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 6%;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.topbar a{
+  text-decoration: none;
+  color: inherit;
+  transition: 0.2s ease;
+}
+
+.topbar a:hover{
+  color: #FF5E00;
+}
