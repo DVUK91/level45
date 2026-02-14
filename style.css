@@ -497,3 +497,12 @@ a:hover{ text-decoration: underline; }
   .brand{ min-width: auto; }
   .nav{ justify-content: flex-start; }
 }
+.mission-card{
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.mission-card:hover{
+  text-decoration: none;
+}
