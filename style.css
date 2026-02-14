@@ -112,6 +112,18 @@ a:hover{ text-decoration: underline; }
   gap: 14px;
 }
 
+/* Stack HUD nav UNDER the title (desktop + mobile) */
+.topbar-inner.stacked{
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.topbar-inner.stacked .nav{
+  width: 100%;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
 .brand{
   display:flex;
   align-items:baseline;
