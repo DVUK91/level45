@@ -6,7 +6,7 @@
 
 :root{
   /* Core */
-  --bg: #0b0b0f;
+  --bg: #0b0b0f;f
   --panel: rgba(255,255,255,0.035);
   --panel-2: rgba(255,255,255,0.055);
   --line: rgba(255,255,255,0.09);
@@ -458,12 +458,14 @@ a:hover{ text-decoration: underline; }
 }
 
 .mission-card {
-  border: 1px solid #FF5E00;
-  padding: 40px;
-  transition: 0.3s ease;
   cursor: pointer;
-  background: rgba(0,0,0,0.35);
+  transition: 0.3s ease;
 }
+
+.mission-card:hover {
+  transform: translateY(-5px);
+}
+
 
 .mission-card:hover {
   box-shadow: 0 0 20px rgba(255, 94, 0, 0.4);
