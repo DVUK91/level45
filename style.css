@@ -478,3 +478,18 @@ a:hover{ text-decoration: underline; }
   margin-bottom: 10px;
   opacity: 0.6;
 }
+/* ===== MOBILE FIX ===== */
+@media (max-width: 600px){
+  .mission-wrapper{
+    padding: 60px 6%;
+  }
+
+  .mission-grid{
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .mission-card{
+    padding: 26px;
+  }
+}
