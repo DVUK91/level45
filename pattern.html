@@ -240,8 +240,13 @@ document.body.classList.add("glitch");
 
   // redirect after 2 seconds
   setTimeout(() => {
-    window.location.href = "rhythm.html";
-  }, 2000);
+  document.body.classList.add("fade-out");
+}, 1700);
+
+setTimeout(() => {
+  window.location.href = "rhythm.html";
+}, 2000);
+
 
   return;
 }
