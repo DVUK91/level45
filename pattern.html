@@ -68,31 +68,109 @@ document.addEventListener("DOMContentLoaded", function () {
   const checkBtn = document.getElementById("checkBtn");
   const resetBtn = document.getElementById("resetBtn");
   const resultText = document.getElementById("resultText");
+  const trialText = document.getElementById("trialText");
 
-  const signals = Array.from({ length: 12 }, (_, i) => ({
-    id: i,
-    kind: Math.random() < 0.5 ? "orange" : "green",
-    selected: false,
-    wrong: false,
-    missed: false
-  }));
+  const timeLeftEl = document.getElementById("timeLeft");
+  const difficultyEl = document.getElementById("difficulty");
+  const scoreEl = document.getElementById("score");
+
+  // GAME STATE
+  let difficulty = 1;        // 1..5
+  let score = 0;
+  let timeLeft = 25;         // seconds
+  let timerId = null;
+  let rule = "orange";       // "orange" or "green" (later: could expand)
+  let signals = [];
+
+  function randBool(p) { return Math.random() < p; }
+
+  function setupRound() {
+    // difficulty scales: more tiles + less time
+    const tileCount = 10 + difficulty * 4;      // 14,18,22,26,30
+    timeLeft = Math.max(10, 26 - difficulty * 3); // 23,20,17,14,11
+
+    rule = randBool(0.7) ? "orange" : "green";  // mostly orange, sometimes green
+
+    signals = Array.from({ length: tileCount }, (_, i) => ({
+      id: i,
+      kind: randBool(0.5) ? "orange" : "green",
+      selected: false,
+      wrong: false,
+      missed: false
+    }));
+
+    trialText.textContent =
+      `Rule: Select all ${rule.toUpperCase()} signals. No false positives.`;
+
+    difficultyEl.textContent = String(difficulty);
+    scoreEl.textContent = String(score);
+
+    startTimer();
+    render();
+    setResult("Status: Awaiting input", null);
+  }
+
+  function setResult(msg, type) {
+    resultText.textContent = msg;
+    if (type === "good") resultText.style.color = "var(--green)";
+    else if (type === "bad") resultText.style.color = "var(--danger)";
+    else resultText.style.color = "inherit";
+  }
+
+  function startTimer() {
+    stopTimer();
+    updateTimerUI();
+
+    timerId = setInterval(() => {
+      timeLeft -= 1;
+      updateTimerUI();
+      if (timeLeft <= 0) {
+        stopTimer();
+        // auto-fail
+        signals.forEach(s => { s.wrong = false; s.missed = false; });
+        // highlight what was required
+        signals.forEach(s => {
+          if (s.kind === rule && !s.selected) s.missed = true;
+          if (s.kind !== rule && s.selected) s.wrong = true;
+        });
+        render();
+        setResult("TIMEOUT: Signal window closed. RESET to retry.", "bad");
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerId) clearInterval(timerId);
+    timerId = null;
+  }
+
+  function updateTimerUI() {
+    timeLeftEl.textContent = `${timeLeft}s`;
+    const pill = timeLeftEl.closest(".hud-pill");
+    if (timeLeft <= 6) pill.classList.add("hud-danger");
+    else pill.classList.remove("hud-danger");
+  }
 
   function render() {
     grid.innerHTML = "";
+
+    // responsive columns: 3..6 depending on tile count
+    const cols = signals.length >= 26 ? 6 : signals.length >= 18 ? 5 : 4;
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
     signals.forEach(s => {
       const el = document.createElement("button");
       el.type = "button";
 
-      el.className =
-        "signal " +
-        (s.kind === "orange" ? "signal-orange" : "signal-green");
+      el.className = "signal " + (s.kind === "orange" ? "signal-orange" : "signal-green");
 
       if (s.selected) el.classList.add("signal-selected");
       if (s.wrong) el.classList.add("signal-wrong");
       if (s.missed) el.classList.add("signal-missed");
 
       el.addEventListener("click", () => {
+        // ignore clicks if timed out
+        if (timeLeft <= 0) return;
         s.selected = !s.selected;
         render();
       });
@@ -105,50 +183,61 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function reset() {
+  function evaluate() {
+    // clear flags
+    signals.forEach(s => { s.wrong = false; s.missed = false; });
+
+    const wrong = signals.some(s => s.kind !== rule && s.selected);
+    const missed = signals.some(s => s.kind === rule && !s.selected);
+
+    // mark tiles
     signals.forEach(s => {
-      s.selected = false;
-      s.wrong = false;
-      s.missed = false;
-    });
-
-    resultText.textContent = "Status: Awaiting input";
-    resultText.style.color = "inherit";
-    render();
-  }
-
-  checkBtn.addEventListener("click", function () {
-
-    signals.forEach(s => {
-      s.wrong = false;
-      s.missed = false;
-    });
-
-    const wrong = signals.some(s => s.kind === "green" && s.selected);
-    const missed = signals.some(s => s.kind === "orange" && !s.selected);
-
-    signals.forEach(s => {
-      if (s.kind === "green" && s.selected) s.wrong = true;
-      if (s.kind === "orange" && !s.selected) s.missed = true;
+      if (s.kind !== rule && s.selected) s.wrong = true;
+      if (s.kind === rule && !s.selected) s.missed = true;
     });
 
     render();
 
     if (!wrong && !missed) {
-      resultText.textContent = "PASS: Trial complete.";
-      resultText.style.color = "var(--green)";
+      stopTimer();
+
+      // scoring: more difficulty + time bonus
+      const timeBonus = Math.max(0, timeLeft);
+      const gained = 10 + difficulty * 5 + Math.floor(timeBonus / 2);
+      score += gained;
+      scoreEl.textContent = String(score);
+
+      setResult(`PASS: +${gained} SCORE. Next round unlocked.`, "good");
+
+      // go harder (up to 5)
+      difficulty = Math.min(5, difficulty + 1);
+
+      // auto-next round after 900ms
+      setTimeout(setupRound, 900);
     } else {
-      resultText.textContent = "FAIL: Signal mismatch. Retry.";
-      resultText.style.color = "var(--danger)";
+      setResult("FAIL: Signal mismatch. RESET to retry.", "bad");
     }
+  }
+
+  function resetGame() {
+    stopTimer();
+    // keep same difficulty but new round
+    setupRound();
+  }
+
+  checkBtn.addEventListener("click", () => {
+    if (timeLeft <= 0) return;
+    evaluate();
   });
 
-  resetBtn.addEventListener("click", reset);
+  resetBtn.addEventListener("click", resetGame);
 
-  render();
+  // start
+  setupRound();
 
 });
 </script>
+
 
 </body>
 </html>
