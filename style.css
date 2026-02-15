@@ -665,4 +665,13 @@ a:hover{ text-decoration: underline; }
   border-color: rgba(255,77,109,0.35);
   box-shadow: 0 0 18px rgba(255,77,109,0.12);
 }
+/* ===== Transition: fade out ===== */
+.fade-out{
+  animation: fadeOut 260ms var(--ease) forwards;
+}
+
+@keyframes fadeOut{
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(4px); }
+}
 
