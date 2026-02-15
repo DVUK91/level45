@@ -506,3 +506,136 @@ a:hover{ text-decoration: underline; }
 .mission-card:hover{
   text-decoration: none;
 }
+/* ===== Trial UI: Pattern Scan (PRO) ===== */
+.signal-grid{
+  display:grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  padding: 10px 0 4px;
+}
+
+.signal{
+  position: relative;
+  height: 54px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform var(--fast) var(--ease),
+              box-shadow var(--fast) var(--ease),
+              border-color var(--fast) var(--ease),
+              background var(--fast) var(--ease);
+  color: var(--text);
+}
+
+.signal:hover{
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.28);
+}
+
+.signal::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: radial-gradient(400px 120px at 20% 0%, rgba(255,255,255,0.06), transparent 55%);
+  pointer-events:none;
+}
+
+.signal-orange{
+  background: linear-gradient(180deg, rgba(255,94,0,0.20), rgba(255,94,0,0.05));
+  box-shadow: 0 0 0 1px rgba(255,94,0,0.14) inset;
+}
+
+.signal-green{
+  background: linear-gradient(180deg, rgba(31,111,91,0.20), rgba(31,111,91,0.05));
+  box-shadow: 0 0 0 1px rgba(31,111,91,0.14) inset;
+}
+
+.signal-selected{
+  border-color: rgba(255,255,255,0.22);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.14) inset,
+              0 0 26px rgba(255,94,0,0.18);
+  transform: translateY(-1px);
+}
+
+/* label + noise */
+.sig-label{
+  position:absolute;
+  left: 10px;
+  top: 9px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+.sig-noise{
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.06) 0px,
+      rgba(255,255,255,0.06) 1px,
+      transparent 1px,
+      transparent 7px
+    );
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  pointer-events:none;
+}
+
+/* feedback states */
+.signal-wrong{
+  animation: sigShake 240ms var(--ease) 1;
+  border-color: rgba(255,77,109,0.45);
+  box-shadow: 0 0 22px rgba(255,77,109,0.18);
+}
+
+.signal-missed{
+  border-color: rgba(255,94,0,0.40);
+  box-shadow: 0 0 22px rgba(255,94,0,0.16);
+}
+
+@keyframes sigShake{
+  0%{ transform: translateX(0); }
+  25%{ transform: translateX(-3px); }
+  50%{ transform: translateX(3px); }
+  75%{ transform: translateX(-2px); }
+  100%{ transform: translateX(0); }
+}
+
+/* scan line (pro vibe) */
+.scanline{
+  position: relative;
+}
+.scanline::after{
+  content:"";
+  position:absolute;
+  left: 0;
+  right: 0;
+  top: -8px;
+  height: 2px;
+  background: rgba(255,94,0,0.65);
+  box-shadow: 0 0 18px rgba(255,94,0,0.25);
+  opacity: 0;
+  transform: translateY(0);
+  pointer-events:none;
+}
+.scanline.is-scanning::after{
+  opacity: 1;
+  animation: scanMove 520ms var(--ease) 1;
+}
+@keyframes scanMove{
+  from{ transform: translateY(0); }
+  to{ transform: translateY(74px); }
+}
+
+/* mobile */
+@media (max-width: 700px){
+  .signal-grid{ grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 420px){
+  .signal-grid{ grid-template-columns: repeat(3, 1fr); }
+}
