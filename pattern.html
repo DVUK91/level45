@@ -37,7 +37,7 @@
 <h1 class="h1">Identify the signal.</h1>
 
 <div class="terminal section" id="trialText">
-  Rule: Click all ORANGE signals. Avoid GREEN.
+  Rule: Select all ORANGE signals. No false positives.
 </div>
 
 <div class="signal-grid section" id="signalGrid"></div>
@@ -80,7 +80,7 @@
         render();
       });
 
-      el.innerHTML = `<span class="mono">${s.kind.toUpperCase()}</span>`;
+      el.innerHTML = `<span class="sig-label mono">${s.id + 1}</span><span class="sig-noise"></span>`;
       grid.appendChild(el);
     });
   }
