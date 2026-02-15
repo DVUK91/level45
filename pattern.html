@@ -54,87 +54,98 @@
 
     <div class="footer">Status: Stable • No patch required</div>
   </div>
-
-  <script>
+<script>
   const grid = document.getElementById("signalGrid");
   const checkBtn = document.getElementById("checkBtn");
   const resetBtn = document.getElementById("resetBtn");
   const resultText = document.getElementById("resultText");
-    
+
+  // scanline wrapper (CSS uses these classes)
   grid.classList.add("scanline");
 
+  // create 12 signals
   const signals = Array.from({ length: 12 }, (_, i) => ({
     id: i,
     kind: Math.random() < 0.5 ? "orange" : "green",
     selected: false,
+    wrong: false,
+    missed: false
   }));
 
-  ffunction render() {
-  grid.innerHTML = "";
-  signals.forEach(s => {
-    const el = document.createElement("button");
+  function render() {
+    grid.innerHTML = "";
+    signals.forEach(s => {
+      const el = document.createElement("button");
+      el.className = "signal " + (s.kind === "orange" ? "signal-orange" : "signal-green");
 
-    el.className = "signal " + (s.kind === "orange" ? "signal-orange" : "signal-green");
+      if (s.selected) el.classList.add("signal-selected");
+      if (s.wrong) el.classList.add("signal-wrong");
+      if (s.missed) el.classList.add("signal-missed");
 
-    if (s.selected) el.classList.add("signal-selected");
-    if (s.wrong) el.classList.add("signal-wrong");
-    if (s.missed) el.classList.add("signal-missed");
+      el.type = "button";
 
-    el.type = "button";
+      el.addEventListener("click", () => {
+        s.selected = !s.selected;
+        render();
+      });
 
-    el.addEventListener("click", () => {
-      s.selected = !s.selected;
-      render();
+      el.innerHTML =
+        `<span class="sig-label mono">${String(s.id + 1).padStart(2, "0")}</span>` +
+        `<span class="sig-noise"></span>`;
+
+      grid.appendChild(el);
     });
-
-    el.innerHTML = `
-      <span class="sig-label mono">${String(s.id + 1).padStart(2,"0")}</span>
-      <span class="sig-noise"></span>
-    `;
-
-    grid.appendChild(el);
-  });
-}
+  }
 
   function reset() {
-  signals.forEach(s => { s.selected = false; s.wrong = false; s.missed = false; });
-  resultText.textContent = "Status: Awaiting input";
-  resultText.style.color = "inherit";
-  render();
-}
+    signals.forEach(s => {
+      s.selected = false;
+      s.wrong = false;
+      s.missed = false;
+    });
 
+    resultText.textContent = "Status: Awaiting input";
+    resultText.style.color = "inherit";
+    render();
+  }
 
   checkBtn.addEventListener("click", () => {
-  // clear previous flags
-  signals.forEach(s => { s.wrong = false; s.missed = false; });
+    // clear flags
+    signals.forEach(s => { s.wrong = false; s.missed = false; });
 
-  // scanning effect
-  grid.classList.remove("is-scanning");
-  void grid.offsetWidth; // restart animation
-  grid.classList.add("is-scanning");
+    // scanning effect
+    grid.classList.remove("is-scanning");
+    void grid.offsetWidth; // restart animation
+    grid.classList.add("is-scanning");
 
-  const wrong = signals.some(s => (s.kind === "green") && s.selected);
-  const missed = signals.some(s => (s.kind === "orange") && !s.selected);
+    const wrong = signals.some(s => (s.kind === "green") && s.selected);
+    const missed = signals.some(s => (s.kind === "orange") && !s.selected);
 
-  // mark specific tiles
-  signals.forEach(s => {
-    if (s.kind === "green" && s.selected) s.wrong = true;
-    if (s.kind === "orange" && !s.selected) s.missed = true;
+    // mark specific tiles
+    signals.forEach(s => {
+      if (s.kind === "green" && s.selected) s.wrong = true;
+      if (s.kind === "orange" && !s.selected) s.missed = true;
+    });
+
+    render();
+
+    if (!wrong && !missed) {
+      // XP save (requires app.js)
+      try {
+        const st = getState();
+        if (!st.trial1) setState({ xp: st.xp + 15, trial1: true });
+      } catch (e) {
+        // if app.js not loaded, still allow pass
+        console.warn("State not saved (app.js missing).", e);
+      }
+
+      resultText.textContent = "PASS: Trial complete (+15 XP).";
+      resultText.style.color = "var(--green)";
+    } else {
+      resultText.textContent = "FAIL: Signal mismatch. Retry.";
+      resultText.style.color = "var(--danger)";
+    }
   });
-
-  render();
-
-  if (!wrong && !missed) {
-    const st = getState();
-    if (!st.trial1) setState({ xp: st.xp + 15, trial1: true });
-
-    resultText.textContent = "PASS: Trial complete (+15 XP).";
-    resultText.style.color = "var(--green)";
-  } else {
-    resultText.textContent = "FAIL: Signal mismatch. Retry.";
-    resultText.style.color = "var(--danger)";
-  }
-});
 
   resetBtn.addEventListener("click", reset);
 
