@@ -217,8 +217,18 @@
 
         setResult(`PASS: +${gained} SCORE. Next round unlocked.`, "good");
 
-        difficulty = Math.min(5, difficulty + 1);
-        setTimeout(setupRound, 900);
+        difficulty += 1;
+
+        if (difficulty >= 4) {
+  setResult("TRIAL COMPLETE. Loading next sequence...", "good");
+  setTimeout(() => {
+    window.location.href = "rhythm.html";
+  }, 1500);
+  return;
+}
+
+setTimeout(setupRound, 900);
+;
       } else {
         setResult("FAIL: Signal mismatch. RESET to retry.", "bad");
       }
