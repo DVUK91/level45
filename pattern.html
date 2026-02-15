@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pattern Scan // Level 45</title>
   <link rel="stylesheet" href="style.css" />
+<script defer src="app.js"></script>
 </head>
 <body class="fade-in">
 
@@ -33,16 +34,85 @@
   <div class="wrap">
     <div class="card card-pad section">
       <div class="kicker">TRIAL 01</div>
-      <h1 class="h1">Identify the signal.</h1>
-      <p class="subhead">Placeholder screen. Next step: build the mini interaction.</p>
+<h1 class="h1">Identify the signal.</h1>
 
-      <div class="btnrow section">
-        <a class="btn btn-ghost" href="missions.html">← Back to Trials</a>
-      </div>
+<div class="terminal section" id="trialText">
+  Rule: Click all ORANGE signals. Avoid GREEN.
+</div>
+
+<div class="signal-grid section" id="signalGrid"></div>
+
+<div class="btnrow section">
+  <button class="btn btn-primary" id="checkBtn" type="button">CHECK</button>
+  <button class="btn" id="resetBtn" type="button">RESET</button>
+  <a class="btn btn-ghost" href="missions.html">← Back to Trials</a>
+</div>
+
+<div class="footer" id="resultText">Status: Awaiting input</div>
+
     </div>
 
     <div class="footer">Status: Stable • No patch required</div>
   </div>
+
+  <script>
+  const grid = document.getElementById("signalGrid");
+  const checkBtn = document.getElementById("checkBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const resultText = document.getElementById("resultText");
+
+  const signals = Array.from({ length: 12 }, (_, i) => ({
+    id: i,
+    kind: Math.random() < 0.5 ? "orange" : "green",
+    selected: false,
+  }));
+
+  function render() {
+    grid.innerHTML = "";
+    signals.forEach(s => {
+      const el = document.createElement("button");
+      el.className = "signal " + (s.kind === "orange" ? "signal-orange" : "signal-green");
+      if (s.selected) el.classList.add("signal-selected");
+      el.type = "button";
+
+      el.addEventListener("click", () => {
+        s.selected = !s.selected;
+        render();
+      });
+
+      el.innerHTML = `<span class="mono">${s.kind.toUpperCase()}</span>`;
+      grid.appendChild(el);
+    });
+  }
+
+  function reset() {
+    signals.forEach(s => s.selected = false);
+    resultText.textContent = "Status: Awaiting input";
+    resultText.style.color = "inherit";
+    render();
+  }
+
+  checkBtn.addEventListener("click", () => {
+    const wrong = signals.some(s => s.kind === "green" && s.selected);
+    const missed = signals.some(s => s.kind === "orange" && !s.selected);
+
+    if (!wrong && !missed) {
+      const s = getState();
+      if (!s.trial1) {
+        setState({ xp: s.xp + 15, trial1: true });
+      }
+      resultText.textContent = "PASS: Trial complete (+15 XP).";
+      resultText.style.color = "var(--green)";
+    } else {
+      resultText.textContent = "FAIL: Signal mismatch. Retry.";
+      resultText.style.color = "var(--danger)";
+    }
+  });
+
+  resetBtn.addEventListener("click", reset);
+
+  render();
+</script>
 
 </body>
 </html>
