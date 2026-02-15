@@ -97,11 +97,12 @@
 }
 
   function reset() {
-    signals.forEach(s => s.selected = false);
-    resultText.textContent = "Status: Awaiting input";
-    resultText.style.color = "inherit";
-    render();
-  }
+  signals.forEach(s => { s.selected = false; s.wrong = false; s.missed = false; });
+  resultText.textContent = "Status: Awaiting input";
+  resultText.style.color = "inherit";
+  render();
+}
+
 
   checkBtn.addEventListener("click", () => {
   // clear previous flags
