@@ -5,17 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pattern Scan // Level 45</title>
   <link rel="stylesheet" href="style.css" />
-<script defer src="app.js"></script>
 </head>
+
 <body class="fade-in">
 
+  <!-- Top Bar -->
   <div class="topbar">
-    <div class="topbar-inner stacked">
-      <div class="brand">
+    <div class="topbar-inner">
+      <div class="topbar-title">
         <span class="dot"></span>
         <div>
-          <div class="title mono">PATTERN SCAN</div>
-          <div class="sub">LUKI13 // LEVEL 45</div>
+          <div class="mono" style="letter-spacing:1px;">PATTERN SCAN</div>
+          <div class="muted mono">LUKI13 // LEVEL 45</div>
         </div>
       </div>
 
@@ -27,216 +28,218 @@
     </div>
   </div>
 
+  <!-- Progress Bar -->
   <div class="progress-wrap">
-    <div class="progress"><div class="bar" style="width: 40%;"></div></div>
+    <div class="progress">
+      <div class="bar" style="width: 40%;"></div>
+    </div>
   </div>
 
+  <!-- Main -->
   <div class="wrap">
     <div class="card card-pad section">
       <div class="kicker">TRIAL 01</div>
-<h1 class="h1">Identify the signal.</h1>
+      <h1 class="h1">Identify the signal.</h1>
 
-<div class="terminal section" id="trialText">
-  Rule: Select all ORANGE signals. No false positives.
-</div>
+      <!-- Rule box (JS updates this text) -->
+      <div class="terminal section" id="trialText">
+        Rule: Select all ORANGE signals. No false positives.
+      </div>
 
-<div class="trial-hud section">
-  <div class="hud-pill"><span class="mono">TIME</span> <span id="timeLeft">--</span></div>
-  <div class="hud-pill"><span class="mono">LEVEL</span> <span id="difficulty">1</span></div>
-  <div class="hud-pill"><span class="mono">SCORE</span> <span id="score">0</span></div>
-</div>
+      <!-- HUD -->
+      <div class="trial-hud section">
+        <div class="hud-pill"><span class="mono">TIME</span> <span id="timeLeft">--</span></div>
+        <div class="hud-pill"><span class="mono">LEVEL</span> <span id="difficulty">1</span></div>
+        <div class="hud-pill"><span class="mono">SCORE</span> <span id="score">0</span></div>
+      </div>
 
-<div class="signal-grid section" id="signalGrid"></div>
+      <!-- Grid -->
+      <div class="signal-grid section" id="signalGrid"></div>
 
-<div class="btnrow section">
-  <button class="btn btn-primary" id="checkBtn" type="button">CHECK</button>
-  <button class="btn" id="resetBtn" type="button">RESET</button>
-  <a class="btn btn-ghost" href="missions.html">← Back to Trials</a>
-</div>
+      <!-- Buttons -->
+      <div class="btnrow section">
+        <button class="btn btn-primary" id="checkBtn" type="button">CHECK</button>
+        <button class="btn" id="resetBtn" type="button">RESET</button>
+        <a class="btn btn-ghost" href="missions.html">← Back to Trials</a>
+      </div>
 
-<div class="footer" id="resultText">Status: Awaiting input</div>
-
+      <!-- Status -->
+      <div class="footer" id="resultText">Status: Awaiting input</div>
     </div>
 
     <div class="footer">Status: Stable • No patch required</div>
   </div>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
 
-  const grid = document.getElementById("signalGrid");
-  const checkBtn = document.getElementById("checkBtn");
-  const resetBtn = document.getElementById("resetBtn");
-  const resultText = document.getElementById("resultText");
-  const trialText = document.getElementById("trialText");
+  <!-- Game Script (ONLY ONE SCRIPT) -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
 
-  const timeLeftEl = document.getElementById("timeLeft");
-  const difficultyEl = document.getElementById("difficulty");
-  const scoreEl = document.getElementById("score");
+    const grid = document.getElementById("signalGrid");
+    const checkBtn = document.getElementById("checkBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const resultText = document.getElementById("resultText");
+    const trialText = document.getElementById("trialText");
 
-  // GAME STATE
-  let difficulty = 1;        // 1..5
-  let score = 0;
-  let timeLeft = 25;         // seconds
-  let timerId = null;
-  let rule = "orange";       // "orange" or "green" (later: could expand)
-  let signals = [];
+    const timeLeftEl = document.getElementById("timeLeft");
+    const difficultyEl = document.getElementById("difficulty");
+    const scoreEl = document.getElementById("score");
 
-  function randBool(p) { return Math.random() < p; }
+    if (!grid || !checkBtn || !resetBtn || !resultText || !trialText || !timeLeftEl || !difficultyEl || !scoreEl) {
+      console.error("Missing required elements. Check ids: signalGrid, checkBtn, resetBtn, resultText, trialText, timeLeft, difficulty, score");
+      return;
+    }
 
-  function setupRound() {
-    // difficulty scales: more tiles + less time
-    const tileCount = 10 + difficulty * 4;      // 14,18,22,26,30
-    timeLeft = Math.max(10, 26 - difficulty * 3); // 23,20,17,14,11
+    // GAME STATE
+    let difficulty = 1;        // 1..5
+    let score = 0;
+    let timeLeft = 25;         // seconds
+    let timerId = null;
+    let rule = "orange";       // "orange" or "green"
+    let signals = [];
 
-    rule = randBool(0.7) ? "orange" : "green";  // mostly orange, sometimes green
+    function randBool(p) { return Math.random() < p; }
 
-    signals = Array.from({ length: tileCount }, (_, i) => ({
-      id: i,
-      kind: randBool(0.5) ? "orange" : "green",
-      selected: false,
-      wrong: false,
-      missed: false
-    }));
+    function setResult(msg, type) {
+      resultText.textContent = msg;
+      if (type === "good") resultText.style.color = "var(--green)";
+      else if (type === "bad") resultText.style.color = "var(--danger)";
+      else resultText.style.color = "inherit";
+    }
 
-    trialText.textContent =
-      `Rule: Select all ${rule.toUpperCase()} signals. No false positives.`;
+    function stopTimer() {
+      if (timerId) clearInterval(timerId);
+      timerId = null;
+    }
 
-    difficultyEl.textContent = String(difficulty);
-    scoreEl.textContent = String(score);
-
-    startTimer();
-    render();
-    setResult("Status: Awaiting input", null);
-  }
-
-  function setResult(msg, type) {
-    resultText.textContent = msg;
-    if (type === "good") resultText.style.color = "var(--green)";
-    else if (type === "bad") resultText.style.color = "var(--danger)";
-    else resultText.style.color = "inherit";
-  }
-
-  function startTimer() {
-    stopTimer();
-    updateTimerUI();
-
-    timerId = setInterval(() => {
-      timeLeft -= 1;
-      updateTimerUI();
-      if (timeLeft <= 0) {
-        stopTimer();
-        // auto-fail
-        signals.forEach(s => { s.wrong = false; s.missed = false; });
-        // highlight what was required
-        signals.forEach(s => {
-          if (s.kind === rule && !s.selected) s.missed = true;
-          if (s.kind !== rule && s.selected) s.wrong = true;
-        });
-        render();
-        setResult("TIMEOUT: Signal window closed. RESET to retry.", "bad");
+    function updateTimerUI() {
+      timeLeftEl.textContent = `${timeLeft}s`;
+      const pill = timeLeftEl.closest(".hud-pill");
+      if (pill) {
+        if (timeLeft <= 6) pill.classList.add("hud-danger");
+        else pill.classList.remove("hud-danger");
       }
-    }, 1000);
-  }
+    }
 
-  function stopTimer() {
-    if (timerId) clearInterval(timerId);
-    timerId = null;
-  }
-
-  function updateTimerUI() {
-    timeLeftEl.textContent = `${timeLeft}s`;
-    const pill = timeLeftEl.closest(".hud-pill");
-    if (timeLeft <= 6) pill.classList.add("hud-danger");
-    else pill.classList.remove("hud-danger");
-  }
-
-  function render() {
-    grid.innerHTML = "";
-
-    // responsive columns: 3..6 depending on tile count
-    const cols = signals.length >= 26 ? 6 : signals.length >= 18 ? 5 : 4;
-    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-
-    signals.forEach(s => {
-      const el = document.createElement("button");
-      el.type = "button";
-
-      el.className = "signal " + (s.kind === "orange" ? "signal-orange" : "signal-green");
-
-      if (s.selected) el.classList.add("signal-selected");
-      if (s.wrong) el.classList.add("signal-wrong");
-      if (s.missed) el.classList.add("signal-missed");
-
-      el.addEventListener("click", () => {
-        // ignore clicks if timed out
-        if (timeLeft <= 0) return;
-        s.selected = !s.selected;
-        render();
-      });
-
-      el.innerHTML =
-        `<span class="sig-label mono">${String(s.id + 1).padStart(2, "0")}</span>
-         <span class="sig-noise"></span>`;
-
-      grid.appendChild(el);
-    });
-  }
-
-  function evaluate() {
-    // clear flags
-    signals.forEach(s => { s.wrong = false; s.missed = false; });
-
-    const wrong = signals.some(s => s.kind !== rule && s.selected);
-    const missed = signals.some(s => s.kind === rule && !s.selected);
-
-    // mark tiles
-    signals.forEach(s => {
-      if (s.kind !== rule && s.selected) s.wrong = true;
-      if (s.kind === rule && !s.selected) s.missed = true;
-    });
-
-    render();
-
-    if (!wrong && !missed) {
+    function startTimer() {
       stopTimer();
+      updateTimerUI();
 
-      // scoring: more difficulty + time bonus
-      const timeBonus = Math.max(0, timeLeft);
-      const gained = 10 + difficulty * 5 + Math.floor(timeBonus / 2);
-      score += gained;
+      timerId = setInterval(() => {
+        timeLeft -= 1;
+        updateTimerUI();
+
+        if (timeLeft <= 0) {
+          stopTimer();
+
+          // highlight what was required
+          signals.forEach(s => {
+            s.wrong = (s.kind !== rule && s.selected);
+            s.missed = (s.kind === rule && !s.selected);
+          });
+
+          render();
+          setResult("TIMEOUT: Signal window closed. RESET to retry.", "bad");
+        }
+      }, 1000);
+    }
+
+    function render() {
+      grid.innerHTML = "";
+
+      // responsive columns
+      const cols = signals.length >= 26 ? 6 : signals.length >= 18 ? 5 : 4;
+      grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+      signals.forEach(s => {
+        const el = document.createElement("button");
+        el.type = "button";
+
+        el.className = "signal " + (s.kind === "orange" ? "signal-orange" : "signal-green");
+        if (s.selected) el.classList.add("signal-selected");
+        if (s.wrong) el.classList.add("signal-wrong");
+        if (s.missed) el.classList.add("signal-missed");
+
+        el.addEventListener("click", () => {
+          if (timeLeft <= 0) return;
+          s.selected = !s.selected;
+          render();
+        });
+
+        el.innerHTML = `<span class="sig-label mono">${String(s.id + 1).padStart(2, "0")}</span>`;
+        grid.appendChild(el);
+      });
+    }
+
+    function setupRound() {
+      const tileCount = 10 + difficulty * 4;                 // 14,18,22,26,30
+      timeLeft = Math.max(10, 26 - difficulty * 3);          // 23,20,17,14,11
+      rule = randBool(0.7) ? "orange" : "green";             // mostly orange, sometimes green
+
+      signals = Array.from({ length: tileCount }, (_, i) => ({
+        id: i,
+        kind: randBool(0.5) ? "orange" : "green",
+        selected: false,
+        wrong: false,
+        missed: false
+      }));
+
+      trialText.textContent = `Rule: Select all ${rule.toUpperCase()} signals. No false positives.`;
+
+      difficultyEl.textContent = String(difficulty);
       scoreEl.textContent = String(score);
 
-      setResult(`PASS: +${gained} SCORE. Next round unlocked.`, "good");
-
-      // go harder (up to 5)
-      difficulty = Math.min(5, difficulty + 1);
-
-      // auto-next round after 900ms
-      setTimeout(setupRound, 900);
-    } else {
-      setResult("FAIL: Signal mismatch. RESET to retry.", "bad");
+      startTimer();
+      render();
+      setResult("Status: Awaiting input", null);
     }
-  }
 
-  function resetGame() {
-    stopTimer();
-    // keep same difficulty but new round
+    function evaluate() {
+      signals.forEach(s => { s.wrong = false; s.missed = false; });
+
+      const wrong = signals.some(s => s.kind !== rule && s.selected);
+      const missed = signals.some(s => s.kind === rule && !s.selected);
+
+      signals.forEach(s => {
+        if (s.kind !== rule && s.selected) s.wrong = true;
+        if (s.kind === rule && !s.selected) s.missed = true;
+      });
+
+      render();
+
+      if (!wrong && !missed) {
+        stopTimer();
+
+        const timeBonus = Math.max(0, timeLeft);
+        const gained = 10 + difficulty * 5 + Math.floor(timeBonus / 2);
+
+        score += gained;
+        scoreEl.textContent = String(score);
+
+        setResult(`PASS: +${gained} SCORE. Next round unlocked.`, "good");
+
+        difficulty = Math.min(5, difficulty + 1);
+        setTimeout(setupRound, 900);
+      } else {
+        setResult("FAIL: Signal mismatch. RESET to retry.", "bad");
+      }
+    }
+
+    function resetGame() {
+      stopTimer();
+      setupRound();
+    }
+
+    checkBtn.addEventListener("click", () => {
+      if (timeLeft <= 0) return;
+      evaluate();
+    });
+
+    resetBtn.addEventListener("click", resetGame);
+
+    // start
     setupRound();
-  }
-
-  checkBtn.addEventListener("click", () => {
-    if (timeLeft <= 0) return;
-    evaluate();
   });
-
-  resetBtn.addEventListener("click", resetGame);
-
-  // start
-  setupRound();
-
-});
-</script>
-
+  </script>
 
 </body>
 </html>
