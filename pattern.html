@@ -220,12 +220,32 @@
         difficulty += 1;
 
         if (difficulty >= 4) {
-  setResult("TRIAL COMPLETE. Loading next sequence...", "good");
+          
+document.body.classList.add("glitch");
+          
+  stopTimer();
+
+  setResult("TRIAL COMPLETE", "good");
+
+  // disable interaction
+  grid.style.pointerEvents = "none";
+  checkBtn.disabled = true;
+  resetBtn.disabled = true;
+
+  // small delay then loading message
+  setTimeout(() => {
+    resultText.textContent = "Loading next sequence...";
+    resultText.style.color = "var(--muted)";
+  }, 900);
+
+  // redirect after 2 seconds
   setTimeout(() => {
     window.location.href = "rhythm.html";
-  }, 1500);
+  }, 2000);
+
   return;
 }
+
 
 setTimeout(setupRound, 900);
 ;
