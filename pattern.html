@@ -290,28 +290,34 @@
 
         // Trial complete -> go next page
         if (difficulty >= 4) {
-          completed = true;
-          document.body.classList.add("glitch");
-          stopTimer();
+  completed = true;
+  stopTimer();
 
-          setResult("TRIAL COMPLETE", "good");
+  // lock input
+  grid.style.pointerEvents = "none";
+  checkBtn.disabled = true;
+  resetBtn.disabled = true;
 
-          grid.style.pointerEvents = "none";
-          checkBtn.disabled = true;
-          resetBtn.disabled = true;
+  // message sequence
+  setResult("TRIAL COMPLETE", "good");
+  document.body.classList.add("glitch");
 
-          setTimeout(() => {
-            resultText.textContent = "Loading next sequence...";
-            resultText.style.color = "var(--muted)";
-          }, 900);
+  setTimeout(() => {
+    resultText.textContent = "Loading next sequence...";
+    resultText.style.color = "var(--muted)";
+  }, 650);
 
-          setTimeout(() => {
-            document.body.classList.add("fade-out");
-          }, 1700);
+  setTimeout(() => {
+    document.body.classList.add("fade-out");
+  }, 1050);
 
-          setTimeout(() => {
-            window.location.href = "rhythm.html";
-          }, 2000);
+  setTimeout(() => {
+    window.location.href = "rhythm.html";
+  }, 1200);
+
+  return;
+}
+, 2000);
 
           return;
         }
