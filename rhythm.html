@@ -89,8 +89,9 @@
   const CURSOR_W = 16;            // px (visual only; collision uses center)
   const TARGET_W_MIN = 74;        // px (easy)
   const TARGET_W_MAX = 110;       // px (very easy sometimes)
-  const SPEED_MIN = 380;          // px/sec
-  const SPEED_MAX = 520;          // px/sec
+  const SPEED_MIN = 260;          // px/sec
+  const SPEED_MAX = 360;          // px/sec
+
 
   roundTotalEl.textContent = String(TOTAL_ROUNDS);
   needRoundsEl.textContent = String(TOTAL_ROUNDS);
@@ -247,12 +248,24 @@
     stopLoop();
     stopTimer();
 
-    setResult("TRIAL COMPLETE — Loading next sequence…", "good");
+    setResult("TRIAL COMPLETE", "good");
 
-    // small “console-like” pause then redirect
-    setTimeout(() => {
-      window.location.href = "response.html"; // TRIAL 03 page
-    }, 1200);
+// glitch vibe
+document.body.classList.add("glitch");
+
+setTimeout(() => {
+  resultText.textContent = "Loading next sequence...";
+  resultText.style.color = "var(--muted)";
+}, 650);
+
+setTimeout(() => {
+  document.body.classList.add("fade-out");
+}, 1050);
+
+setTimeout(() => {
+  window.location.href = "response.html";
+}, 1200);
+
   }
 
   function nextRoundSuccess() {
