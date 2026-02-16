@@ -6,15 +6,17 @@
   <title>Rhythm Alignment // Level 45</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body class="fade-in">
 
+  <!-- Top Bar -->
   <div class="topbar">
-    <div class="topbar-inner stacked">
-      <div class="brand">
+    <div class="topbar-inner">
+      <div class="topbar-title">
         <span class="dot"></span>
         <div>
-          <div class="title mono">RHYTHM ALIGNMENT</div>
-          <div class="sub">LUKI13 // LEVEL 45</div>
+          <div class="mono" style="letter-spacing:1px;">RHYTHM ALIGNMENT</div>
+          <div class="muted mono">LUKI13 // LEVEL 45</div>
         </div>
       </div>
 
@@ -26,23 +28,230 @@
     </div>
   </div>
 
+  <!-- Progress Bar -->
   <div class="progress-wrap">
-    <div class="progress"><div class="bar" style="width: 40%;"></div></div>
+    <div class="progress">
+      <div class="bar" style="width: 70%;"></div>
+    </div>
   </div>
 
   <div class="wrap">
     <div class="card card-pad section">
       <div class="kicker">TRIAL 02</div>
       <h1 class="h1">Lock to tempo.</h1>
-      <p class="subhead">Placeholder screen. Next step: simple timing test.</p>
+
+      <div class="terminal section" id="ruleBox">
+        Rule: Tap SYNC on beat. Maintain alignment.
+      </div>
+
+      <div class="trial-hud section">
+        <div class="hud-pill"><span class="mono">TIME</span> <span id="timeLeft">--</span></div>
+        <div class="hud-pill"><span class="mono">STREAK</span> <span id="streak">0</span></div>
+        <div class="hud-pill"><span class="mono">SCORE</span> <span id="score">0</span></div>
+      </div>
+
+      <!-- Beat indicator -->
+      <div class="section" style="display:flex; gap:14px; align-items:center; justify-content:space-between;">
+        <div class="mono muted">Tempo</div>
+        <div class="mono" id="bpmLabel">BPM 96</div>
+      </div>
+
+      <div class="section" id="beatLane" style="position:relative;">
+        <div id="beatDot"
+          style="
+            width:16px;height:16px;border-radius:999px;
+            background: var(--orange-2);
+            box-shadow: 0 0 18px rgba(255,94,0,.55);
+            position:absolute; left:50%; top:50%;
+            transform: translate(-50%,-50%) scale(0.85);
+            opacity: 0.65;
+          "></div>
+
+        <div
+          style="
+            height:120px;border-radius:18px;
+            background: rgba(0,0,0,.25);
+            border: 1px solid rgba(255,255,255,.08);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+          "></div>
+      </div>
+
+      <!-- Sync pad -->
+      <button id="syncBtn" type="button"
+        class="btn btn-primary section"
+        style="
+          width:100%;
+          padding:18px 18px;
+          border-radius:18px;
+          font-size:16px;
+          letter-spacing:.08em;
+        "
+      >
+        SYNC
+      </button>
 
       <div class="btnrow section">
+        <button class="btn" id="resetBtn" type="button">RESET</button>
         <a class="btn btn-ghost" href="missions.html">← Back to Trials</a>
       </div>
+
+      <div class="footer" id="resultText">Status: Awaiting input</div>
     </div>
 
     <div class="footer">Status: Stable • No patch required</div>
   </div>
 
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const timeLeftEl = document.getElementById("timeLeft");
+    const streakEl = document.getElementById("streak");
+    const scoreEl = document.getElementById("score");
+    const resultText = document.getElementById("resultText");
+    const bpmLabel = document.getElementById("bpmLabel");
+    const beatDot = document.getElementById("beatDot");
+    const syncBtn = document.getElementById("syncBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    let bpm = 96;
+    let intervalMs = Math.round(60000 / bpm);
+    let timeLeft = 25;
+    let timerId = null;
+    let beatId = null;
+
+    let lastBeatAt = 0;
+    let streak = 0;
+    let score = 0;
+    let completed = false;
+
+    function setResult(msg, type) {
+      resultText.textContent = msg;
+      if (type === "good") resultText.style.color = "var(--green)";
+      else if (type === "bad") resultText.style.color = "var(--danger)";
+      else resultText.style.color = "inherit";
+    }
+
+    function updateHUD() {
+      timeLeftEl.textContent = `${timeLeft}s`;
+      streakEl.textContent = String(streak);
+      scoreEl.textContent = String(score);
+      bpmLabel.textContent = `BPM ${bpm}`;
+    }
+
+    function stopAll() {
+      if (timerId) clearInterval(timerId);
+      if (beatId) clearInterval(beatId);
+      timerId = null;
+      beatId = null;
+    }
+
+    function pulse() {
+      lastBeatAt = performance.now();
+      beatDot.animate(
+        [
+          { transform: "translate(-50%,-50%) scale(0.85)", opacity: 0.55 },
+          { transform: "translate(-50%,-50%) scale(1.25)", opacity: 1 },
+          { transform: "translate(-50%,-50%) scale(0.90)", opacity: 0.75 }
+        ],
+        { duration: 220, easing: "cubic-bezier(.2,.9,.2,1)" }
+      );
+    }
+
+    function startBeat() {
+      pulse();
+      beatId = setInterval(pulse, intervalMs);
+    }
+
+    function startTimer() {
+      updateHUD();
+      timerId = setInterval(() => {
+        if (completed) return;
+        timeLeft -= 1;
+        updateHUD();
+
+        if (timeLeft <= 0) {
+          stopAll();
+          setResult("TIMEOUT: Alignment lost. RESET to retry.", "bad");
+        }
+      }, 1000);
+    }
+
+    function gradeTap() {
+      const now = performance.now();
+      const dt = Math.abs(now - lastBeatAt);
+
+      // windows (ms)
+      const PERFECT = 90;
+      const GOOD = 160;
+
+      if (dt <= PERFECT) return { label: "PERFECT", points: 12, ok: true };
+      if (dt <= GOOD) return { label: "GOOD", points: 7, ok: true };
+      return { label: "MISS", points: 0, ok: false };
+    }
+
+    function completeTrial() {
+      completed = true;
+      stopAll();
+      syncBtn.disabled = true;
+      resetBtn.disabled = true;
+
+      document.body.classList.add("glitch");
+      setResult("TRIAL COMPLETE", "good");
+
+      setTimeout(() => {
+        resultText.textContent = "Loading next sequence...";
+        resultText.style.color = "var(--muted)";
+      }, 900);
+
+      setTimeout(() => document.body.classList.add("fade-out"), 1700);
+      setTimeout(() => (window.location.href = "response.html"), 2000);
+    }
+
+    function resetGame() {
+      stopAll();
+      completed = false;
+      syncBtn.disabled = false;
+      resetBtn.disabled = false;
+
+      // tiny variation each reset, feels alive
+      bpm = 92 + Math.floor(Math.random() * 12); // 92..103
+      intervalMs = Math.round(60000 / bpm);
+
+      timeLeft = 25;
+      streak = 0;
+      score = 0;
+      updateHUD();
+
+      setResult("Status: Awaiting input", null);
+      startBeat();
+      startTimer();
+    }
+
+    syncBtn.addEventListener("click", () => {
+      if (completed) return;
+      if (timeLeft <= 0) return;
+
+      const g = gradeTap();
+      if (g.ok) {
+        streak += 1;
+        score += g.points + Math.min(10, streak); // small streak bonus
+        setResult(`${g.label}: Alignment confirmed.`, "good");
+      } else {
+        streak = 0;
+        setResult("MISS: Tempo drift detected.", "bad");
+      }
+      updateHUD();
+
+      // win condition: 10 good taps in a row
+      if (streak >= 10) completeTrial();
+    });
+
+    resetBtn.addEventListener("click", resetGame);
+
+    // Mobile snappy taps
+    syncBtn.style.touchAction = "manipulation";
+
+    resetGame();
+  });
+  </script>
 </body>
 </html>
