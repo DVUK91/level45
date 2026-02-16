@@ -177,16 +177,7 @@
         el.setAttribute("data-i", String(i));
         el.innerHTML = `<span class="sig-label mono">${String(i + 1).padStart(2, "0")}</span>`;
 
-        el.addEventListener("click", () => {
-          if (completed) return;
-          if (timeLeft <= 0) return;
-
-          const s = signals[i];
-          if (!s) return;
-
-          s.selected = !s.selected;
-          paintTile(i);
-        });
+      
 
         tileEls.push(el);
         grid.appendChild(el);
@@ -335,6 +326,21 @@
       updateHUD();
       setupRound();
     }
+// One single listener for all tiles (better mobile performance)
+grid.addEventListener("click", (e) => {
+  if (completed) return;
+  if (timeLeft <= 0) return;
+
+  const btn = e.target.closest("button.signal");
+  if (!btn) return;
+
+  const i = Number(btn.dataset.i);
+  const s = signals[i];
+  if (!s) return;
+
+  s.selected = !s.selected;
+  paintTile(i);
+});
 
     checkBtn.addEventListener("click", evaluate);
     resetBtn.addEventListener("click", resetAll);
