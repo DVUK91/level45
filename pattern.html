@@ -11,12 +11,12 @@
 
   <!-- Top Bar -->
   <div class="topbar">
-    <div class="topbar-inner">
-      <div class="topbar-title">
+    <div class="topbar-inner stacked">
+      <div class="brand">
         <span class="dot"></span>
         <div>
-          <div class="mono" style="letter-spacing:1px;">PATTERN SCAN</div>
-          <div class="muted mono">LUKI13 // LEVEL 45</div>
+          <div class="title mono">PATTERN SCAN</div>
+          <div class="sub">LUKI13 // LEVEL 45</div>
         </div>
       </div>
 
@@ -41,29 +41,24 @@
       <div class="kicker">TRIAL 01</div>
       <h1 class="h1">Identify the signal.</h1>
 
-      <!-- Rule box -->
       <div class="terminal section" id="trialText">
         Rule: Select all ORANGE signals. No false positives.
       </div>
 
-      <!-- HUD -->
       <div class="trial-hud section">
         <div class="hud-pill"><span class="mono">TIME</span> <span id="timeLeft">--</span></div>
-        <div class="hud-pill"><span class="mono">LEVEL</span> <span id="difficulty">1</span></div>
+        <div class="hud-pill"><span class="mono">ROUND</span> <span id="round">1</span>/<span id="roundTotal">3</span></div>
         <div class="hud-pill"><span class="mono">SCORE</span> <span id="score">0</span></div>
       </div>
 
-      <!-- Grid -->
       <div class="signal-grid section" id="signalGrid"></div>
 
-      <!-- Buttons -->
       <div class="btnrow section">
         <button class="btn btn-primary" id="checkBtn" type="button">CHECK</button>
         <button class="btn" id="resetBtn" type="button">RESET</button>
         <a class="btn btn-ghost" href="missions.html">← Back to Trials</a>
       </div>
 
-      <!-- Status -->
       <div class="footer" id="resultText">Status: Awaiting input</div>
     </div>
 
@@ -80,35 +75,50 @@
     const trialText = document.getElementById("trialText");
 
     const timeLeftEl = document.getElementById("timeLeft");
-    const difficultyEl = document.getElementById("difficulty");
+    const roundEl = document.getElementById("round");
+    const roundTotalEl = document.getElementById("roundTotal");
     const scoreEl = document.getElementById("score");
 
-    const required = [grid, checkBtn, resetBtn, resultText, trialText, timeLeftEl, difficultyEl, scoreEl];
+    const required = [grid, checkBtn, resetBtn, resultText, trialText, timeLeftEl, roundEl, roundTotalEl, scoreEl];
     if (required.some(x => !x)) {
-      console.error("Missing required elements. Check ids: signalGrid, checkBtn, resetBtn, resultText, trialText, timeLeft, difficulty, score");
+      console.error("Missing required elements on pattern.html");
       return;
     }
 
+    // Tunables (achievable + mobile friendly)
+    const TOTAL_ROUNDS = 3;
+    const ROUND_TIME_S = 18;
+
+    roundTotalEl.textContent = String(TOTAL_ROUNDS);
+
     // State
-    let difficulty = 1;        // 1..5
+    let round = 1;
     let score = 0;
-    let timeLeft = 25;         // seconds
+    let timeLeft = ROUND_TIME_S;
     let timerId = null;
-    let rule = "orange";       // "orange" | "green"
-    let signals = [];          // [{id, kind, selected, wrong, missed}]
-    let tileEls = [];          // DOM refs, same length as signals
-    let builtCount = 0;        // how many tiles currently built
-    let paintQueued = false;
+
+    let rule = "orange"; // "orange" | "green"
+    let signals = [];
+    let tileEls = [];
+    let builtCount = 0;
+
     let completed = false;
+    let paintQueued = false;
 
     // Utils
     const randBool = (p) => Math.random() < p;
 
     function setResult(msg, type) {
       resultText.textContent = msg;
+      resultText.style.color = "";
       if (type === "good") resultText.style.color = "var(--green)";
-      else if (type === "bad") resultText.style.color = "var(--danger)";
-      else resultText.style.color = "inherit";
+      if (type === "bad") resultText.style.color = "var(--danger)";
+    }
+
+    function updateHUD() {
+      timeLeftEl.textContent = `${Math.max(0, timeLeft)}s`;
+      roundEl.textContent = String(round);
+      scoreEl.textContent = String(score);
     }
 
     function stopTimer() {
@@ -116,49 +126,42 @@
       timerId = null;
     }
 
-    function updateTimerUI() {
-      timeLeftEl.textContent = `${timeLeft}s`;
-      const pill = timeLeftEl.closest(".hud-pill");
-      if (pill) {
-        if (timeLeft <= 6) pill.classList.add("hud-danger");
-        else pill.classList.remove("hud-danger");
-      }
-    }
-
     function startTimer() {
       stopTimer();
-      updateTimerUI();
+      timeLeft = ROUND_TIME_S;
+      updateHUD();
 
       timerId = setInterval(() => {
         if (completed) return;
 
         timeLeft -= 1;
-        updateTimerUI();
+        updateHUD();
 
         if (timeLeft <= 0) {
           stopTimer();
+          timeLeft = 0;
+          updateHUD();
 
-          // mark wrong/missed once, then paint
+          // mark missed/wrong and paint
           for (let i = 0; i < signals.length; i++) {
             const s = signals[i];
             s.wrong = (s.kind !== rule && s.selected);
             s.missed = (s.kind === rule && !s.selected);
           }
-
           paintAll();
+
           setResult("TIMEOUT: Signal window closed. RESET to retry.", "bad");
         }
       }, 1000);
     }
 
-    // --- PERF FIX: build once, then paint classes only ---
     function setColsForCount(count) {
       const cols = count >= 26 ? 6 : count >= 18 ? 5 : 4;
       grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
     }
 
+    // Build grid ONCE per round (if tile count changes)
     function buildGrid(count) {
-      // rebuild only if size changed
       if (count === builtCount) return;
 
       grid.innerHTML = "";
@@ -167,17 +170,13 @@
 
       setColsForCount(count);
 
-      // Build buttons once
       for (let i = 0; i < count; i++) {
         const el = document.createElement("button");
         el.type = "button";
-        el.className = "signal"; // classes set in paint
+        el.className = "signal";
         el.setAttribute("data-i", String(i));
-
-        // label once
         el.innerHTML = `<span class="sig-label mono">${String(i + 1).padStart(2, "0")}</span>`;
 
-        // one handler per tile (no re-render)
         el.addEventListener("click", () => {
           if (completed) return;
           if (timeLeft <= 0) return;
@@ -186,7 +185,6 @@
           if (!s) return;
 
           s.selected = !s.selected;
-          // update just this tile (fast)
           paintTile(i);
         });
 
@@ -200,17 +198,13 @@
       const el = tileEls[i];
       if (!s || !el) return;
 
-      // base
       el.className = "signal " + (s.kind === "orange" ? "signal-orange" : "signal-green");
-
-      // overlays
       if (s.selected) el.classList.add("signal-selected");
       if (s.wrong) el.classList.add("signal-wrong");
       if (s.missed) el.classList.add("signal-missed");
     }
 
     function paintAll() {
-      // throttle to next frame to keep taps smooth
       if (paintQueued) return;
       paintQueued = true;
 
@@ -226,8 +220,8 @@
       checkBtn.disabled = false;
       resetBtn.disabled = false;
 
-      const tileCount = 10 + difficulty * 4;            // 14,18,22,26,30
-      timeLeft = Math.max(10, 26 - difficulty * 3);     // 23,20,17,14,11
+      // difficulty scales gently by round (achievable)
+      const tileCount = 14 + (round - 1) * 4; // 14,18,22
       rule = randBool(0.7) ? "orange" : "green";
 
       signals = Array.from({ length: tileCount }, (_, i) => ({
@@ -239,20 +233,52 @@
       }));
 
       trialText.textContent = `Rule: Select all ${rule.toUpperCase()} signals. No false positives.`;
-      difficultyEl.textContent = String(difficulty);
-      scoreEl.textContent = String(score);
 
       buildGrid(tileCount);
       paintAll();
-
       startTimer();
       setResult("Status: Awaiting input", null);
+      updateHUD();
+    }
+
+    function showCompleteOverlay(nextHref) {
+      const overlay = document.createElement("div");
+      overlay.className = "trial-overlay";
+      overlay.innerHTML = `
+        <div class="trial-overlay-inner">
+          <h2>TRIAL COMPLETE</h2>
+          <p>Loading next sequence...</p>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      document.body.classList.add("glitch");
+
+      setTimeout(() => {
+        document.body.classList.add("fade-out");
+      }, 900);
+
+      setTimeout(() => {
+        window.location.href = nextHref;
+      }, 1200);
+    }
+
+    function completeTrial() {
+      completed = true;
+      stopTimer();
+
+      grid.style.pointerEvents = "none";
+      checkBtn.disabled = true;
+      resetBtn.disabled = true;
+
+      showCompleteOverlay("rhythm.html");
     }
 
     function evaluate() {
       if (completed) return;
+      if (timeLeft <= 0) return;
 
-      // reset flags
+      // clear flags
       for (let i = 0; i < signals.length; i++) {
         signals[i].wrong = false;
         signals[i].missed = false;
@@ -267,7 +293,7 @@
         if (s.kind === rule && !s.selected) missed = true;
       }
 
-      // mark & paint once
+      // mark & paint
       for (let i = 0; i < signals.length; i++) {
         const s = signals[i];
         if (s.kind !== rule && s.selected) s.wrong = true;
@@ -278,78 +304,43 @@
       if (!wrong && !missed) {
         stopTimer();
 
-        const timeBonus = Math.max(0, timeLeft);
-        const gained = 10 + difficulty * 5 + Math.floor(timeBonus / 2);
-
+        // scoring feels good + achievable
+        const gained = 10 + Math.max(0, timeLeft);
         score += gained;
-        scoreEl.textContent = String(score);
+        updateHUD();
+        setResult(`PASS: +${gained} SCORE.`, "good");
 
-        setResult(`PASS: +${gained} SCORE. Next round unlocked.`, "good");
-
-        difficulty += 1;
-
-        // Trial complete -> go next page
-        if (difficulty >= 4) {
-  completed = true;
-  stopTimer();
-
-  // lock input
-  grid.style.pointerEvents = "none";
-  checkBtn.disabled = true;
-  resetBtn.disabled = true;
-
-  // message sequence
-  // create overlay
-const overlay = document.createElement("div");
-overlay.className = "trial-overlay";
-overlay.innerHTML = `
-  <div class="trial-overlay-inner">
-    <h2>TRIAL COMPLETE</h2>
-    <p>Loading next sequence...</p>
-  </div>
-`;
-
-document.body.appendChild(overlay);
-
-// glitch subtle
-document.body.classList.add("glitch");
-
-// redirect after delay
-setTimeout(() => {
-  document.body.classList.add("fade-out");
-}, 900);
-
-setTimeout(() => {
-  window.location.href = "rhythm.html"; // or response.html
-}, 1200);
-, 1200);
-
-  return;
-}
-, 2000);
-
+        if (round >= TOTAL_ROUNDS) {
+          completeTrial();
           return;
         }
 
-        setTimeout(setupRound, 900);
+        // next round
+        checkBtn.disabled = true;
+        setTimeout(() => {
+          round += 1;
+          checkBtn.disabled = false;
+          setupRound();
+        }, 700);
       } else {
-        setResult("FAIL: Signal mismatch. RESET to retry.", "bad");
+        setResult("FAIL: Signal mismatch. Try again or RESET.", "bad");
       }
     }
 
-    function resetGame() {
+    function resetAll() {
       stopTimer();
+      completed = false;
+      round = 1;
+      score = 0;
+      updateHUD();
       setupRound();
     }
 
-    checkBtn.addEventListener("click", () => {
-      if (timeLeft <= 0) return;
-      evaluate();
-    });
+    checkBtn.addEventListener("click", evaluate);
+    resetBtn.addEventListener("click", resetAll);
 
-    resetBtn.addEventListener("click", resetGame);
-
-    // Start
+    // Boot
+    updateHUD();
     setupRound();
   });
   </script>
