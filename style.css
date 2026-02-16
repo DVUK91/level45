@@ -677,3 +677,38 @@ a:hover{ text-decoration: underline; }
 .signal { touch-action: manipulation; }
 .signal * { pointer-events: none; } /* evita tap sullo span interno */
 
+/* ===== TRIAL 02 (Rhythm) ===== */
+.rhythm { max-width: 720px; }
+.rhythm-track{
+  position: relative;
+  height: 54px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.rhythm-target{
+  position: absolute;
+  top: 0; bottom: 0;
+  border-radius: 16px;
+  background: rgba(255,94,0,0.14);
+  border: 1px solid rgba(255,94,0,0.35);
+  box-shadow: 0 0 24px rgba(255,94,0,0.14);
+}
+.rhythm-cursor{
+  position: absolute;
+  top: 6px; bottom: 6px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 0 18px rgba(255,255,255,0.08);
+  will-change: transform;
+}
+.rhythm-hint{ margin-top: 10px; font-size: 13px; }
+
+/* mobile breathing room */
+@media (max-width: 600px){
+  .rhythm-track{ height: 58px; }
+}
+
+
