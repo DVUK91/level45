@@ -784,4 +784,33 @@ a:hover{ text-decoration: underline; }
     backdrop-filter: none !important;
   }
 }
+/* --- Mobile: boost color contrast for tiles (iOS tends to wash these out) --- */
+@media (hover: none), (max-width: 700px){
+  .signal-orange{
+    background: linear-gradient(180deg,
+      rgba(255,94,0,0.42),
+      rgba(255,94,0,0.18)
+    ) !important;
+    border-color: rgba(255,94,0,0.55) !important;
+    box-shadow:
+      0 10px 28px rgba(0,0,0,0.45),
+      0 0 0 1px rgba(255,94,0,0.22) inset !important;
+  }
+
+  .signal-green{
+    background: linear-gradient(180deg,
+      rgba(31,111,91,0.40),
+      rgba(31,111,91,0.16)
+    ) !important;
+    border-color: rgba(31,111,91,0.55) !important;
+    box-shadow:
+      0 10px 28px rgba(0,0,0,0.45),
+      0 0 0 1px rgba(31,111,91,0.22) inset !important;
+  }
+
+  /* optional: make selected state pop a bit more on touch screens */
+  .signal-selected{
+    transform: translateY(-1px);
+  }
+}
 
