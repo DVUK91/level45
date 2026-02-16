@@ -299,21 +299,30 @@
   resetBtn.disabled = true;
 
   // message sequence
-  setResult("TRIAL COMPLETE", "good");
-  document.body.classList.add("glitch");
+  // create overlay
+const overlay = document.createElement("div");
+overlay.className = "trial-overlay";
+overlay.innerHTML = `
+  <div class="trial-overlay-inner">
+    <h2>TRIAL COMPLETE</h2>
+    <p>Loading next sequence...</p>
+  </div>
+`;
 
-  setTimeout(() => {
-    resultText.textContent = "Loading next sequence...";
-    resultText.style.color = "var(--muted)";
-  }, 650);
+document.body.appendChild(overlay);
 
-  setTimeout(() => {
-    document.body.classList.add("fade-out");
-  }, 1050);
+// glitch subtle
+document.body.classList.add("glitch");
 
-  setTimeout(() => {
-    window.location.href = "rhythm.html";
-  }, 1200);
+// redirect after delay
+setTimeout(() => {
+  document.body.classList.add("fade-out");
+}, 900);
+
+setTimeout(() => {
+  window.location.href = "rhythm.html"; // or response.html
+}, 1200);
+, 1200);
 
   return;
 }
