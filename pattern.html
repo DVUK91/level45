@@ -41,7 +41,7 @@
       <div class="kicker">TRIAL 01</div>
       <h1 class="h1">Identify the signal.</h1>
 
-      <!-- Rule box (JS updates this text) -->
+      <!-- Rule box -->
       <div class="terminal section" id="trialText">
         Rule: Select all ORANGE signals. No false positives.
       </div>
@@ -70,10 +70,9 @@
     <div class="footer">Status: Stable • No patch required</div>
   </div>
 
-  <!-- Game Script (ONLY ONE SCRIPT) -->
   <script>
-  document.addEventListener("DOMContentLoaded", function () {
-
+  document.addEventListener("DOMContentLoaded", () => {
+    // Elements
     const grid = document.getElementById("signalGrid");
     const checkBtn = document.getElementById("checkBtn");
     const resetBtn = document.getElementById("resetBtn");
@@ -84,20 +83,26 @@
     const difficultyEl = document.getElementById("difficulty");
     const scoreEl = document.getElementById("score");
 
-    if (!grid || !checkBtn || !resetBtn || !resultText || !trialText || !timeLeftEl || !difficultyEl || !scoreEl) {
+    const required = [grid, checkBtn, resetBtn, resultText, trialText, timeLeftEl, difficultyEl, scoreEl];
+    if (required.some(x => !x)) {
       console.error("Missing required elements. Check ids: signalGrid, checkBtn, resetBtn, resultText, trialText, timeLeft, difficulty, score");
       return;
     }
 
-    // GAME STATE
+    // State
     let difficulty = 1;        // 1..5
     let score = 0;
     let timeLeft = 25;         // seconds
     let timerId = null;
-    let rule = "orange";       // "orange" or "green"
-    let signals = [];
+    let rule = "orange";       // "orange" | "green"
+    let signals = [];          // [{id, kind, selected, wrong, missed}]
+    let tileEls = [];          // DOM refs, same length as signals
+    let builtCount = 0;        // how many tiles currently built
+    let paintQueued = false;
+    let completed = false;
 
-    function randBool(p) { return Math.random() < p; }
+    // Utils
+    const randBool = (p) => Math.random() < p;
 
     function setResult(msg, type) {
       resultText.textContent = msg;
@@ -125,55 +130,105 @@
       updateTimerUI();
 
       timerId = setInterval(() => {
+        if (completed) return;
+
         timeLeft -= 1;
         updateTimerUI();
 
         if (timeLeft <= 0) {
           stopTimer();
 
-          // highlight what was required
-          signals.forEach(s => {
+          // mark wrong/missed once, then paint
+          for (let i = 0; i < signals.length; i++) {
+            const s = signals[i];
             s.wrong = (s.kind !== rule && s.selected);
             s.missed = (s.kind === rule && !s.selected);
-          });
+          }
 
-          render();
+          paintAll();
           setResult("TIMEOUT: Signal window closed. RESET to retry.", "bad");
         }
       }, 1000);
     }
 
-    function render() {
-      grid.innerHTML = "";
-
-      // responsive columns
-      const cols = signals.length >= 26 ? 6 : signals.length >= 18 ? 5 : 4;
+    // --- PERF FIX: build once, then paint classes only ---
+    function setColsForCount(count) {
+      const cols = count >= 26 ? 6 : count >= 18 ? 5 : 4;
       grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    }
 
-      signals.forEach(s => {
+    function buildGrid(count) {
+      // rebuild only if size changed
+      if (count === builtCount) return;
+
+      grid.innerHTML = "";
+      tileEls = [];
+      builtCount = count;
+
+      setColsForCount(count);
+
+      // Build buttons once
+      for (let i = 0; i < count; i++) {
         const el = document.createElement("button");
         el.type = "button";
+        el.className = "signal"; // classes set in paint
+        el.setAttribute("data-i", String(i));
 
-        el.className = "signal " + (s.kind === "orange" ? "signal-orange" : "signal-green");
-        if (s.selected) el.classList.add("signal-selected");
-        if (s.wrong) el.classList.add("signal-wrong");
-        if (s.missed) el.classList.add("signal-missed");
+        // label once
+        el.innerHTML = `<span class="sig-label mono">${String(i + 1).padStart(2, "0")}</span>`;
 
+        // one handler per tile (no re-render)
         el.addEventListener("click", () => {
+          if (completed) return;
           if (timeLeft <= 0) return;
+
+          const s = signals[i];
+          if (!s) return;
+
           s.selected = !s.selected;
-          render();
+          // update just this tile (fast)
+          paintTile(i);
         });
 
-        el.innerHTML = `<span class="sig-label mono">${String(s.id + 1).padStart(2, "0")}</span>`;
+        tileEls.push(el);
         grid.appendChild(el);
+      }
+    }
+
+    function paintTile(i) {
+      const s = signals[i];
+      const el = tileEls[i];
+      if (!s || !el) return;
+
+      // base
+      el.className = "signal " + (s.kind === "orange" ? "signal-orange" : "signal-green");
+
+      // overlays
+      if (s.selected) el.classList.add("signal-selected");
+      if (s.wrong) el.classList.add("signal-wrong");
+      if (s.missed) el.classList.add("signal-missed");
+    }
+
+    function paintAll() {
+      // throttle to next frame to keep taps smooth
+      if (paintQueued) return;
+      paintQueued = true;
+
+      requestAnimationFrame(() => {
+        paintQueued = false;
+        for (let i = 0; i < signals.length; i++) paintTile(i);
       });
     }
 
     function setupRound() {
-      const tileCount = 10 + difficulty * 4;                 // 14,18,22,26,30
-      timeLeft = Math.max(10, 26 - difficulty * 3);          // 23,20,17,14,11
-      rule = randBool(0.7) ? "orange" : "green";             // mostly orange, sometimes green
+      completed = false;
+      grid.style.pointerEvents = "";
+      checkBtn.disabled = false;
+      resetBtn.disabled = false;
+
+      const tileCount = 10 + difficulty * 4;            // 14,18,22,26,30
+      timeLeft = Math.max(10, 26 - difficulty * 3);     // 23,20,17,14,11
+      rule = randBool(0.7) ? "orange" : "green";
 
       signals = Array.from({ length: tileCount }, (_, i) => ({
         id: i,
@@ -184,27 +239,41 @@
       }));
 
       trialText.textContent = `Rule: Select all ${rule.toUpperCase()} signals. No false positives.`;
-
       difficultyEl.textContent = String(difficulty);
       scoreEl.textContent = String(score);
 
+      buildGrid(tileCount);
+      paintAll();
+
       startTimer();
-      render();
       setResult("Status: Awaiting input", null);
     }
 
     function evaluate() {
-      signals.forEach(s => { s.wrong = false; s.missed = false; });
+      if (completed) return;
 
-      const wrong = signals.some(s => s.kind !== rule && s.selected);
-      const missed = signals.some(s => s.kind === rule && !s.selected);
+      // reset flags
+      for (let i = 0; i < signals.length; i++) {
+        signals[i].wrong = false;
+        signals[i].missed = false;
+      }
 
-      signals.forEach(s => {
+      let wrong = false;
+      let missed = false;
+
+      for (let i = 0; i < signals.length; i++) {
+        const s = signals[i];
+        if (s.kind !== rule && s.selected) wrong = true;
+        if (s.kind === rule && !s.selected) missed = true;
+      }
+
+      // mark & paint once
+      for (let i = 0; i < signals.length; i++) {
+        const s = signals[i];
         if (s.kind !== rule && s.selected) s.wrong = true;
         if (s.kind === rule && !s.selected) s.missed = true;
-      });
-
-      render();
+      }
+      paintAll();
 
       if (!wrong && !missed) {
         stopTimer();
@@ -219,41 +288,35 @@
 
         difficulty += 1;
 
+        // Trial complete -> go next page
         if (difficulty >= 4) {
-          
-document.body.classList.add("glitch");
-          
-  stopTimer();
+          completed = true;
+          document.body.classList.add("glitch");
+          stopTimer();
 
-  setResult("TRIAL COMPLETE", "good");
+          setResult("TRIAL COMPLETE", "good");
 
-  // disable interaction
-  grid.style.pointerEvents = "none";
-  checkBtn.disabled = true;
-  resetBtn.disabled = true;
+          grid.style.pointerEvents = "none";
+          checkBtn.disabled = true;
+          resetBtn.disabled = true;
 
-  // small delay then loading message
-  setTimeout(() => {
-    resultText.textContent = "Loading next sequence...";
-    resultText.style.color = "var(--muted)";
-  }, 900);
+          setTimeout(() => {
+            resultText.textContent = "Loading next sequence...";
+            resultText.style.color = "var(--muted)";
+          }, 900);
 
-  // redirect after 2 seconds
-  setTimeout(() => {
-  document.body.classList.add("fade-out");
-}, 1700);
+          setTimeout(() => {
+            document.body.classList.add("fade-out");
+          }, 1700);
 
-setTimeout(() => {
-  window.location.href = "rhythm.html";
-}, 2000);
+          setTimeout(() => {
+            window.location.href = "rhythm.html";
+          }, 2000);
 
+          return;
+        }
 
-  return;
-}
-
-
-setTimeout(setupRound, 900);
-;
+        setTimeout(setupRound, 900);
       } else {
         setResult("FAIL: Signal mismatch. RESET to retry.", "bad");
       }
@@ -271,7 +334,7 @@ setTimeout(setupRound, 900);
 
     resetBtn.addEventListener("click", resetGame);
 
-    // start
+    // Start
     setupRound();
   });
   </script>
