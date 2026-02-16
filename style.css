@@ -674,4 +674,6 @@ a:hover{ text-decoration: underline; }
   from { opacity: 1; transform: translateY(0); }
   to   { opacity: 0; transform: translateY(4px); }
 }
+.signal { touch-action: manipulation; }
+.signal * { pointer-events: none; } /* evita tap sullo span interno */
 
