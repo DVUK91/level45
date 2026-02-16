@@ -745,5 +745,43 @@ a:hover{ text-decoration: underline; }
 @keyframes fadeInOverlay{
   to{ opacity:1; }
 }
+/* ===== Mobile Performance Mode ===== */
+@media (max-width: 700px){
+  /* meno animazioni globali */
+  *{
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
 
+  /* tiles: togli glow/ombre che killano il framerate */
+  .signal{
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    transform: none !important;
+    background-image: none !important;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .signal-orange,
+  .signal-green{
+    box-shadow: none !important;
+  }
+
+  .signal-selected{
+    outline: 2px solid rgba(255,255,255,0.20);
+    box-shadow: none !important;
+  }
+
+  .signal-wrong,
+  .signal-missed{
+    box-shadow: none !important;
+  }
+
+  /* overlay: niente blur su mobile */
+  .trial-overlay{
+    backdrop-filter: none !important;
+  }
+}
 
