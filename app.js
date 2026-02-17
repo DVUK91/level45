@@ -3,6 +3,23 @@
 
 const STORAGE_KEY = "level45_progress_v1";
 
+// --- Settings (global) ---
+const SETTINGS_KEY = "level45_settings_v1";
+const DEFAULT_SETTINGS = { soundOn: true };
+
+function getSettings(){
+  const raw = localStorage.getItem(SETTINGS_KEY);
+  if (!raw) return { ...DEFAULT_SETTINGS };
+  try { return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }; }
+  catch { return { ...DEFAULT_SETTINGS }; }
+}
+
+function setSettings(next){
+  const clean = { ...DEFAULT_SETTINGS, ...next, soundOn: Boolean(next.soundOn) };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(clean));
+  return clean;
+}
+
 const DEFAULT_SETTINGS = { soundOn: true };
 
 function getSettings(){
