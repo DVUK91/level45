@@ -3,6 +3,33 @@
 
 const STORAGE_KEY = "level45_progress_v1";
 
+const DEFAULT_SETTINGS = { soundOn: true };
+
+function getSettings(){
+  const raw = localStorage.getItem(SETTINGS_KEY);
+  if (!raw) return { ...DEFAULT_SETTINGS };
+  try { return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }; }
+  catch { return { ...DEFAULT_SETTINGS }; }
+}
+
+function setSettings(next){
+  const clean = { ...DEFAULT_SETTINGS, ...next, soundOn: Boolean(next.soundOn) };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(clean));
+  return clean;
+}
+
+function isSoundOn(){
+  return getSettings().soundOn;
+}
+
+function toggleSound(){
+  const s = getSettings();
+  const next = setSettings({ soundOn: !s.soundOn });
+  updateSoundToggleUI(next.soundOn);
+  return next.soundOn;
+}
+
+
 // default progress
 const DEFAULT_PROGRESS = {
   xp: 0,
@@ -97,6 +124,38 @@ document.addEventListener("pointerdown", () => {
   }
 }, { once: true });
 
+function updateSoundToggleUI(on){
+  const btn = document.getElementById("soundToggleBtn");
+  if (!btn) return;
+  btn.textContent = on ? "SND: ON" : "SND: OFF";
+  btn.setAttribute("aria-pressed", on ? "true" : "false");
+}
+
+function mountSoundToggle(){
+  const nav = document.querySelector(".topbar .nav");
+  if (!nav) return; // pages without topbar
+
+  // Avoid duplicates
+  if (document.getElementById("soundToggleBtn")) return;
+
+  const btn = document.createElement("button");
+  btn.id = "soundToggleBtn";
+  btn.className = "btn btn-ghost mono sound-toggle";
+  btn.type = "button";
+
+  updateSoundToggleUI(isSoundOn());
+
+  btn.addEventListener("click", () => {
+    toggleSound();
+  });
+
+  nav.appendChild(btn);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  mountSoundToggle();
+});
+
 
 function _getAudioCtx(){
   if (!_audioCtx){
@@ -109,7 +168,8 @@ function _getAudioCtx(){
   return _audioCtx;
 }
 
-function playBeep({ freq = 440, dur = 0.06, type = "square", vol = 0.05 } = {}){
+function playBeep({   if (!isSoundOn()) return;
+freq = 440, dur = 0.06, type = "square", vol = 0.05 } = {}){
   const ctx = _getAudioCtx();
   if (!ctx) return;
 
@@ -157,4 +217,7 @@ window.LEVEL45 = {
     sfxOk,
   sfxBad,
   sfxWin,
+    isSoundOn,
+  toggleSound,
+
 };
