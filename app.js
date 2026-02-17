@@ -132,8 +132,9 @@ function updateSoundToggleUI(on){
 }
 
 function mountSoundToggle(){
-  const nav = document.querySelector(".topbar .nav");
-  if (!nav) return; // pages without topbar
+  // be less picky: just find the first .nav
+  const nav = document.querySelector(".nav");
+  if (!nav) return;
 
   // Avoid duplicates
   if (document.getElementById("soundToggleBtn")) return;
@@ -152,9 +153,10 @@ function mountSoundToggle(){
   nav.appendChild(btn);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  mountSoundToggle();
-});
+// Try multiple times (works even if scripts load early/oddly)
+mountSoundToggle();
+document.addEventListener("DOMContentLoaded", mountSoundToggle);
+setTimeout(mountSoundToggle, 0);
 
 
 function _getAudioCtx(){
