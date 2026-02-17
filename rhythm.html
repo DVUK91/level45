@@ -244,30 +244,16 @@
   }
 
   function completeTrial() {
-    running = false;
-    lockBtn.disabled = true;
-    stopLoop();
-    stopTimer();
+  running = false;
+  lockBtn.disabled = true;
+  stopLoop();
+  stopTimer();
+
   LEVEL45.completeTrial("rhythm", 25);
-    setResult("TRIAL COMPLETE", "good");
 
-// glitch vibe
-document.body.classList.add("glitch");
+  showCompleteOverlay("response.html");
+}
 
-setTimeout(() => {
-  resultText.textContent = "Loading next sequence...";
-  resultText.style.color = "var(--muted)";
-}, 650);
-
-setTimeout(() => {
-  document.body.classList.add("fade-out");
-}, 1050);
-
-setTimeout(() => {
-  window.location.href = "response.html";
-}, 1200);
-
-  }
 
   function nextRoundSuccess() {
     score += 1;
