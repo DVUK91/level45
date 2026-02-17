@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reward Unlocked // Level 45</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .reward-hero{
+      text-align:center;
+      padding: 26px 18px;
+    }
+    .reward-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(0,255,136,0.25);
+      background: rgba(0,255,136,0.08);
+      box-shadow: 0 0 24px rgba(0,255,136,0.18);
+      letter-spacing: 1px;
+    }
+    .reward-tag .dot{
+      width:10px;height:10px;border-radius:999px;
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(0,255,136,0.45);
+    }
+    .reward-title{
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin: 14px 0 8px;
+    }
+    .reward-sub{
+      opacity: .85;
+      margin: 0 auto;
+      max-width: 34ch;
+    }
+    .reward-card{
+      margin-top: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.05);
+      padding: 16px;
+      text-align:left;
+    }
+    .reward-card h2{
+      margin: 0 0 6px;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+    .reward-big{
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin: 6px 0 10px;
+    }
+    .reward-note{
+      opacity:.8;
+      font-size: 13px;
+      margin: 0;
+    }
+    .confetti{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:.12;
+      filter: blur(.2px);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(0,255,136,0.35), transparent 40%),
+        radial-gradient(circle at 80% 30%, rgba(255,94,0,0.35), transparent 45%),
+        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.12), transparent 45%);
+    }
+    @media (min-width: 900px){
+      .reward-title{ font-size: 40px; }
+      .reward-sub{ max-width: 44ch; }
+    }
+  </style>
+</head>
+
+<body class="fade-in">
+  <div class="confetti"></div>
+
+  <div class="topbar">
+    <div class="topbar-inner stacked">
+      <div class="brand">
+        <span class="dot"></span>
+        <div>
+          <div class="title mono">REWARD UNLOCKED</div>
+          <div class="sub">LUKI13 // LEVEL 45</div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <a href="index.html">Boot</a>
+        <a href="profile.html">Profile</a>
+        <a href="missions.html">Trials</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress"><div class="bar" style="width: 100%;"></div></div>
+  </div>
+
+  <div class="wrap">
+    <div class="card card-pad section reward-hero">
+      <div class="reward-tag mono">
+        <span class="dot"></span>
+        MISSION COMPLETE
+      </div>
+
+      <div class="reward-title">Dinner Out.</div>
+      <p class="reward-sub">You cleared all trials. Your final reward has been unlocked.</p>
+
+      <div class="reward-card section">
+        <h2 class="mono">NEXT STEP</h2>
+        <div class="reward-big">Pick a date + restaurant 🍝</div>
+        <p class="reward-note mono">Tip: screenshot this screen as proof of completion.</p>
+      </div>
+
+      <div class="btnrow section" style="justify-content:center;">
+        <a class="btn btn-primary" href="profile.html">Back to Profile</a>
+        <a class="btn btn-ghost" href="missions.html">Replay Trials</a>
+      </div>
+    </div>
+
+    <div class="footer">Status: Success • Patch applied</div>
+  </div>
+
+  <script src="./app.js"></script>
+  <script>
+    // Optional guard: if someone opens reward directly, still show it, but you can later lock it.
+    // For now we keep it friendly.
+  </script>
+</body>
+</html>
