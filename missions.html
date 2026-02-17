@@ -66,15 +66,7 @@
     Reset progress
   </button>
 </div>
-  const resetBtn = document.getElementById("resetProgressBtn");
-  if (resetBtn){
-    resetBtn.addEventListener("click", () => {
-      const ok = confirm("Reset all progress and start from Trial 01?");
-      if (!ok) return;
-      LEVEL45.resetProgress();
-      location.reload();
-    });
-  }
+    
    </section>
 <script src="app.js"></script>
   <script>
@@ -120,7 +112,17 @@
   const doneCount = [p.pattern, p.rhythm, p.response].filter(Boolean).length;
   const pct = Math.round((doneCount / 3) * 100);
   const bar = document.querySelector(".progress .bar");
-  if (bar) bar.style.width = pct + "%";
+    
+  if (bar) bar.style.width = pct + "%";  const resetBtn = document.getElementById("resetProgressBtn");
+  if (resetBtn){
+    resetBtn.addEventListener("click", () => {
+      const ok = confirm("Reset all progress and start from Trial 01?");
+      if (!ok) return;
+      LEVEL45.resetProgress();
+      location.reload();
+    });
+  }
+
 </script>
 
 </body>
