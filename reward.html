@@ -130,9 +130,14 @@
   </div>
 
   <script src="./app.js"></script>
-  <script>
-    // Optional guard: if someone opens reward directly, still show it, but you can later lock it.
-    // For now we keep it friendly.
-  </script>
+<script>
+  const p = LEVEL45.getProgress();
+
+  // If Trial 03 not completed, redirect back
+  if (!p.response){
+    window.location.href = "missions.html";
+  }
+</script>
+
 </body>
 </html>
