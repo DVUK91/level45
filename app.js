@@ -184,9 +184,11 @@ function sfxWin() {
 function updateSoundToggleUI(on) {
   const btn = document.getElementById("soundToggleBtn");
   if (!btn) return;
-  btn.textContent = on ? "SND: ON" : "SND: OFF";
+
+  btn.textContent = on ? "SFX: ON" : "SFX: OFF";
   btn.setAttribute("aria-pressed", on ? "true" : "false");
 }
+
 
 function mountSoundToggle() {
   // Your pages use <div class="nav">...</div>
