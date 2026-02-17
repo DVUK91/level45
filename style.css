@@ -840,3 +840,21 @@ a:hover{ text-decoration: underline; }
 }
 .nav #soundToggleBtn:hover{ opacity: 1; }
 
+/* Make top nav wrap on mobile so extra items (like SND) don't disappear */
+.topbar .nav{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 520px){
+  .topbar .nav{
+    justify-content: center;
+  }
+  #soundToggleBtn{
+    order: 99;            /* put it last */
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+}
+
