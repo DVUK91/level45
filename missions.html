@@ -61,7 +61,21 @@
   <p>Override in time.</p>
 </a>
     </div>
-  </section>
+<div class="section" style="text-align:center; margin-top: 14px;">
+  <button class="btn btn-ghost mono" id="resetProgressBtn" style="opacity:.75;">
+    Reset progress
+  </button>
+</div>
+  const resetBtn = document.getElementById("resetProgressBtn");
+  if (resetBtn){
+    resetBtn.addEventListener("click", () => {
+      const ok = confirm("Reset all progress and start from Trial 01?");
+      if (!ok) return;
+      LEVEL45.resetProgress();
+      location.reload();
+    });
+  }
+   </section>
 <script src="app.js"></script>
   <script>
   const p = LEVEL45.getProgress();
