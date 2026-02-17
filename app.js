@@ -170,8 +170,9 @@ function _getAudioCtx(){
   return _audioCtx;
 }
 
-function playBeep({   if (!isSoundOn()) return;
-freq = 440, dur = 0.06, type = "square", vol = 0.05 } = {}){
+function playBeep({ freq = 440, dur = 0.06, type = "square", vol = 0.05 } = {}){
+  if (!isSoundOn()) return;
+
   const ctx = _getAudioCtx();
   if (!ctx) return;
 
@@ -216,10 +217,10 @@ window.LEVEL45 = {
   completeTrial,
   isComplete,
   resetProgress,
-    sfxOk,
+  sfxOk,
   sfxBad,
   sfxWin,
-    isSoundOn,
-  toggleSound,
-
+  isSoundOn,
+  toggleSound
 };
+
