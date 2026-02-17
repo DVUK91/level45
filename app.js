@@ -89,6 +89,15 @@ function resetProgress() {
 // --- Sound FX (tiny, retro) ---
 let _audioCtx = null;
 
+// Unlock audio on first user interaction (mobile safe)
+document.addEventListener("pointerdown", () => {
+  const ctx = _getAudioCtx();
+  if (ctx && ctx.state === "suspended") {
+    ctx.resume().catch(() => {});
+  }
+}, { once: true });
+
+
 function _getAudioCtx(){
   if (!_audioCtx){
     const AC = window.AudioContext || window.webkitAudioContext;
