@@ -125,6 +125,23 @@
     if (type === "bad") resultText.style.color = "var(--danger)";
   }
 
+  function showCompleteOverlay(nextHref){
+  const overlay = document.createElement("div");
+  overlay.className = "trial-overlay";
+  overlay.innerHTML = `
+    <div class="trial-overlay-inner">
+      <h2>TRIAL COMPLETE</h2>
+      <p>Loading next sequence...</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  document.body.classList.add("glitch");
+
+  setTimeout(() => document.body.classList.add("fade-out"), 900);
+  setTimeout(() => window.location.href = nextHref, 1200);
+}
+
   function measure() {
     const rect = track.getBoundingClientRect();
     trackW = Math.max(1, Math.floor(rect.width));
