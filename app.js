@@ -86,6 +86,57 @@ function resetProgress() {
   return { ...DEFAULT_PROGRESS };
 }
 
+// --- Sound FX (tiny, retro) ---
+let _audioCtx = null;
+
+function _getAudioCtx(){
+  if (!_audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    _audioCtx = new AC();
+  }
+  // on iOS it may start "suspended" until user gesture
+  if (_audioCtx.state === "suspended") _audioCtx.resume().catch(() => {});
+  return _audioCtx;
+}
+
+function playBeep({ freq = 440, dur = 0.06, type = "square", vol = 0.05 } = {}){
+  const ctx = _getAudioCtx();
+  if (!ctx) return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.type = type;
+  osc.frequency.value = freq;
+
+  // soft envelope to avoid clicks
+  const now = ctx.currentTime;
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(vol, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start(now);
+  osc.stop(now + dur + 0.02);
+}
+
+function sfxOk(){
+  playBeep({ freq: 880, dur: 0.05, type: "square", vol: 0.05 });
+}
+function sfxBad(){
+  playBeep({ freq: 140, dur: 0.08, type: "sawtooth", vol: 0.06 });
+}
+function sfxWin(){
+  // tiny 3-beep “unlock”
+  playBeep({ freq: 523, dur: 0.06, type: "square", vol: 0.05 }); // C5
+  setTimeout(() => playBeep({ freq: 659, dur: 0.06, type: "square", vol: 0.05 }), 80); // E5
+  setTimeout(() => playBeep({ freq: 784, dur: 0.07, type: "square", vol: 0.05 }), 160); // G5
+}
+
+
 // (optional) make available in console for debugging
 window.LEVEL45 = {
   getProgress,
@@ -94,4 +145,7 @@ window.LEVEL45 = {
   completeTrial,
   isComplete,
   resetProgress,
+    sfxOk,
+  sfxBad,
+  sfxWin,
 };
