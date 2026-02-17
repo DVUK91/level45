@@ -279,14 +279,16 @@
       updateHUD();
 
       if (round > TOTAL_ROUNDS){
-        setStatus("Complete");
-        btn0.disabled = true;
-        btn1.disabled = true;
+  setStatus("Complete");
+  btn0.disabled = true;
+  btn1.disabled = true;
 
-        LEVEL45.completeTrial("response", 25);
-        showCompleteOverlay("reward.html");
-        return;
-      }
+  LEVEL45.sfxWin();   // 🎉 unlock sound
+  LEVEL45.completeTrial("response", 25);
+  showCompleteOverlay("reward.html");
+  return;
+}
+
 
       setStatus("Good");
       setTimeout(() => startRound(), 450);
@@ -312,23 +314,26 @@
     }
 
     function inputBit(bit){
-      if (!running) return;
+  if (!running) return;
 
-      const i = typed.length;
-      const expected = code[i];
+  const i = typed.length;
+  const expected = code[i];
 
-      typed.push(bit);
-      updateHUD();
+  typed.push(bit);
+  updateHUD();
 
-      if (bit !== expected){
-        resetRound();
-        return;
-      }
+  if (bit !== expected){
+    LEVEL45.sfxBad();   // ❌ error sound
+    resetRound();
+    return;
+  }
 
-      if (typed.length >= CODE_LEN){
-        winRound();
-      }
-    }
+  LEVEL45.sfxOk();     // ✔️ correct beep
+
+  if (typed.length >= CODE_LEN){
+    winRound();
+  }
+}
 
     btn0.addEventListener("click", () => inputBit(0));
     btn1.addEventListener("click", () => inputBit(1));
