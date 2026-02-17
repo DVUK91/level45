@@ -43,19 +43,19 @@
     <p class="subtitle">Select Trial</p>
 
     <div class="mission-grid">
-     <a class="mission-card card" href="pattern.html">
+     <a class="mission-card" id="cardPattern" href="pattern.html">
   <span class="mission-number">TRIAL 01</span>
   <h2>PATTERN SCAN</h2>
   <p>Identify the signal.</p>
 </a>
 
-     <a class="mission-card card" href="rhythm.html">
+     <a class="mission-card card" id="cardRhythm" href="rhythm.html">
   <span class="mission-number">TRIAL 02</span>
   <h2>RHYTHM ALIGNMENT</h2>
   <p>Lock to tempo.</p>
 </a>
 
-   <a class="mission-card card" href="response.html">
+   <a class="mission-card" id="cardResponse" href="response.html">
   <span class="mission-number">TRIAL 03</span>
   <h2>SYSTEM RESPONSE</h2>
   <p>Override in time.</p>
@@ -63,5 +63,51 @@
     </div>
   </section>
 <script src="app.js"></script>
+  <script>
+  const p = LEVEL45.getProgress();
+
+  const cardPattern = document.getElementById("cardPattern");
+  const cardRhythm = document.getElementById("cardRhythm");
+  const cardResponse = document.getElementById("cardResponse");
+
+  function setCard(card, stateText, enabled){
+    // state badge (small + clean)
+    let badge = card.querySelector(".state-badge");
+    if (!badge){
+      badge = document.createElement("span");
+      badge.className = "state-badge mono";
+      card.prepend(badge);
+    }
+    badge.textContent = stateText;
+
+    if (enabled){
+      card.style.pointerEvents = "";
+      card.style.opacity = "";
+      card.setAttribute("aria-disabled", "false");
+    } else {
+      card.style.pointerEvents = "none";
+      card.style.opacity = "0.45";
+      card.setAttribute("aria-disabled", "true");
+    }
+  }
+
+  // Pattern is always playable
+  setCard(cardPattern, p.pattern ? "DONE" : "START", true);
+
+  // Rhythm unlocked after pattern
+  const rhythmUnlocked = p.pattern;
+  setCard(cardRhythm, p.rhythm ? "DONE" : (rhythmUnlocked ? "NEXT" : "LOCKED"), rhythmUnlocked);
+
+  // Response unlocked after rhythm
+  const responseUnlocked = p.rhythm;
+  setCard(cardResponse, p.response ? "DONE" : (responseUnlocked ? "NEXT" : "LOCKED"), responseUnlocked);
+
+  // Optional: progress bar update (0/3 → 100%)
+  const doneCount = [p.pattern, p.rhythm, p.response].filter(Boolean).length;
+  const pct = Math.round((doneCount / 3) * 100);
+  const bar = document.querySelector(".progress .bar");
+  if (bar) bar.style.width = pct + "%";
+</script>
+
 </body>
 </html>
