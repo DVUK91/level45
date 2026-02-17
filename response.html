@@ -5,9 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>System Response // Level 45</title>
   <link rel="stylesheet" href="style.css" />
-</head>
-<body class="fade-in">
+  <style>
+    .choice-wrap{ display:flex; gap:12px; }
+    .choice-btn{
+      flex:1;
+      padding:16px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-size: 16px;
+      cursor:pointer;
+      touch-action: manipulation;
+    }
+    .choice-btn:active{ transform: translateY(1px); }
+    .choice-allow{ border-color: rgba(0,255,136,0.25); }
+    .choice-deny{ border-color: rgba(255,66,66,0.25); }
 
+    .prompt{
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin: 8px 0 6px;
+    }
+    .prompt.allow{ color: var(--green); text-shadow: 0 0 16px rgba(0,255,136,0.25); }
+    .prompt.deny{ color: var(--danger); text-shadow: 0 0 16px rgba(255,66,66,0.25); }
+
+    .meter{ height:10px; border-radius:999px; background: rgba(255,255,255,0.08); overflow:hidden; }
+    .meter > div{ height:100%; width:100%; background: rgba(255,255,255,0.20); transform-origin:left; }
+
+    .mini{ display:flex; gap:10px; flex-wrap:wrap; opacity:0.85; }
+    .pill{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      font-size: 12px;
+      letter-spacing: .6px;
+    }
+  </style>
+</head>
+
+<body class="fade-in">
   <div class="topbar">
     <div class="topbar-inner stacked">
       <div class="brand">
@@ -27,14 +68,31 @@
   </div>
 
   <div class="progress-wrap">
-    <div class="progress"><div class="bar" style="width: 40%;"></div></div>
+    <div class="progress"><div class="bar" style="width: 66%;"></div></div>
   </div>
 
   <div class="wrap">
     <div class="card card-pad section">
       <div class="kicker">TRIAL 03</div>
       <h1 class="h1">Override in time.</h1>
-      <p class="subhead">Placeholder screen. Next step: quick decision timer.</p>
+      <p class="subhead">Follow the system command before the timer drops.</p>
+
+      <div class="section mini">
+        <div class="pill mono" id="roundPill">ROUND 1/5</div>
+        <div class="pill mono" id="scorePill">SCORE 0</div>
+        <div class="pill mono" id="statusPill">Status: Ready</div>
+      </div>
+
+      <div class="section">
+        <div class="prompt mono" id="promptText">—</div>
+        <div class="meter"><div id="meterFill"></div></div>
+        <div class="mono" style="opacity:.7; margin-top:8px; font-size:12px;">Tip: trust the prompt, don’t overthink.</div>
+      </div>
+
+      <div class="section choice-wrap">
+        <button class="choice-btn choice-allow" id="btnAllow">ALLOW</button>
+        <button class="choice-btn choice-deny" id="btnDeny">DENY</button>
+      </div>
 
       <div class="btnrow section">
         <a class="btn btn-ghost" href="missions.html">← Back to Trials</a>
@@ -43,6 +101,140 @@
 
     <div class="footer">Status: Stable • No patch required</div>
   </div>
-<script src="app.js"></script>
+
+  <script src="./app.js"></script>
+
+  <script>
+    const TOTAL_ROUNDS = 5;
+
+    const roundPill = document.getElementById("roundPill");
+    const scorePill = document.getElementById("scorePill");
+    const statusPill = document.getElementById("statusPill");
+    const promptText = document.getElementById("promptText");
+    const meterFill = document.getElementById("meterFill");
+    const btnAllow = document.getElementById("btnAllow");
+    const btnDeny = document.getElementById("btnDeny");
+
+    let round = 1;
+    let score = 0;
+    let expected = null;
+    let running = false;
+    let tStart = 0;
+    let duration = 0;
+    let rafId = null;
+
+    function showCompleteOverlay(nextHref){
+      const overlay = document.createElement("div");
+      overlay.className = "trial-overlay";
+      overlay.innerHTML = `
+        <div class="trial-overlay-inner">
+          <h2>TRIAL COMPLETE</h2>
+          <p>Reward unlocking...</p>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      document.body.classList.add("glitch");
+      setTimeout(() => document.body.classList.add("fade-out"), 900);
+      setTimeout(() => window.location.href = nextHref, 1200);
+    }
+
+    function updateHUD(){
+      roundPill.textContent = `ROUND ${round}/${TOTAL_ROUNDS}`;
+      scorePill.textContent = `SCORE ${score}`;
+    }
+
+    function setStatus(msg){
+      statusPill.textContent = `Status: ${msg}`;
+    }
+
+    function pickPrompt(){
+      expected = Math.random() < 0.5 ? "ALLOW" : "DENY";
+      promptText.textContent = expected;
+      promptText.classList.remove("allow","deny");
+      promptText.classList.add(expected === "ALLOW" ? "allow" : "deny");
+
+      duration = Math.max(950, 1700 - (round - 1) * 150);
+      tStart = performance.now();
+      running = true;
+      setStatus("Live");
+      tick();
+    }
+
+    function resetRound(){
+      running = false;
+      cancelAnimationFrame(rafId);
+      rafId = null;
+      setStatus("Reset (too slow / wrong)");
+      score = 0;
+      round = 1;
+      updateHUD();
+
+      promptText.textContent = "—";
+      promptText.classList.remove("allow","deny");
+      meterFill.style.transform = "scaleX(1)";
+
+      setTimeout(() => {
+        setStatus("Ready");
+        pickPrompt();
+      }, 650);
+    }
+
+    function winRound(){
+      running = false;
+      cancelAnimationFrame(rafId);
+      rafId = null;
+
+      score += 10;
+      round += 1;
+      updateHUD();
+
+      if (round > TOTAL_ROUNDS){
+        setStatus("Complete");
+        btnAllow.disabled = true;
+        btnDeny.disabled = true;
+
+        LEVEL45.completeTrial("response", 25);
+        showCompleteOverlay("reward.html");
+        return;
+      }
+
+      setStatus("Good");
+      setTimeout(() => pickPrompt(), 450);
+    }
+
+    function tick(){
+      if (!running) return;
+
+      const now = performance.now();
+      const elapsed = now - tStart;
+      const remaining = Math.max(0, duration - elapsed);
+      const ratio = remaining / duration;
+      meterFill.style.transform = `scaleX(${ratio})`;
+
+      if (remaining <= 0){
+        resetRound();
+        return;
+      }
+
+      rafId = requestAnimationFrame(tick);
+    }
+
+    function choose(value){
+      if (!running) return;
+      if (value === expected){
+        winRound();
+      } else {
+        resetRound();
+      }
+    }
+
+    btnAllow.addEventListener("click", () => choose("ALLOW"));
+    btnDeny.addEventListener("click", () => choose("DENY"));
+
+    updateHUD();
+    setStatus("Ready");
+    pickPrompt();
+  </script>
 </body>
 </html>
