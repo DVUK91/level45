@@ -7,47 +7,38 @@ const STORAGE_KEY = "level45_progress_v1";
 const SETTINGS_KEY = "level45_settings_v1";
 const DEFAULT_SETTINGS = { soundOn: true };
 
-function getSettings(){
+function getSettings() {
   const raw = localStorage.getItem(SETTINGS_KEY);
   if (!raw) return { ...DEFAULT_SETTINGS };
-  try { return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }; }
-  catch { return { ...DEFAULT_SETTINGS }; }
+  try {
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
 }
 
-function setSettings(next){
-  const clean = { ...DEFAULT_SETTINGS, ...next, soundOn: Boolean(next.soundOn) };
+function setSettings(next) {
+  const clean = {
+    ...DEFAULT_SETTINGS,
+    ...next,
+    soundOn: Boolean(next.soundOn),
+  };
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(clean));
   return clean;
 }
 
-const DEFAULT_SETTINGS = { soundOn: true };
-
-function getSettings(){
-  const raw = localStorage.getItem(SETTINGS_KEY);
-  if (!raw) return { ...DEFAULT_SETTINGS };
-  try { return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) }; }
-  catch { return { ...DEFAULT_SETTINGS }; }
-}
-
-function setSettings(next){
-  const clean = { ...DEFAULT_SETTINGS, ...next, soundOn: Boolean(next.soundOn) };
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(clean));
-  return clean;
-}
-
-function isSoundOn(){
+function isSoundOn() {
   return getSettings().soundOn;
 }
 
-function toggleSound(){
+function toggleSound() {
   const s = getSettings();
   const next = setSettings({ soundOn: !s.soundOn });
   updateSoundToggleUI(next.soundOn);
   return next.soundOn;
 }
 
-
-// default progress
+// --- Progress ---
 const DEFAULT_PROGRESS = {
   xp: 0,
   pattern: false,   // Trial 1
@@ -66,8 +57,7 @@ function getProgress() {
         ...parsed,
         xp: Number(parsed.xp || 0),
       };
-    } catch (e) {
-      // if corrupted, fall back to default
+    } catch {
       return { ...DEFAULT_PROGRESS };
     }
   }
@@ -107,9 +97,7 @@ function addXP(amount) {
 
 function completeTrial(trialKey, xpReward = 25) {
   const p = getProgress();
-  if (trialKey in p) {
-    p[trialKey] = true;
-  }
+  if (trialKey in p) p[trialKey] = true;
   p.xp += Number(xpReward || 0);
   return setProgress(p);
 }
@@ -133,27 +121,78 @@ function resetProgress() {
 // --- Sound FX (tiny, retro) ---
 let _audioCtx = null;
 
-// Unlock audio on first user interaction (mobile safe)
-document.addEventListener("pointerdown", () => {
-  const ctx = _getAudioCtx();
-  if (ctx && ctx.state === "suspended") {
-    ctx.resume().catch(() => {});
+function _getAudioCtx() {
+  if (!_audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    _audioCtx = new AC();
   }
-}, { once: true });
+  if (_audioCtx.state === "suspended") _audioCtx.resume().catch(() => {});
+  return _audioCtx;
+}
 
-function updateSoundToggleUI(on){
+// Unlock audio on first user interaction (mobile safe)
+document.addEventListener(
+  "pointerdown",
+  () => {
+    const ctx = _getAudioCtx();
+    if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
+  },
+  { once: true }
+);
+
+function playBeep({ freq = 440, dur = 0.06, type = "square", vol = 0.05 } = {}) {
+  if (!isSoundOn()) return;
+
+  const ctx = _getAudioCtx();
+  if (!ctx) return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.type = type;
+  osc.frequency.value = freq;
+
+  // soft envelope to avoid clicks
+  const now = ctx.currentTime;
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(vol, now + 0.01);
+  gain.gain.exponentialRampToToValueAtTime?.(0.0001, now + dur); // (safety if browser supports typo)
+  // Correct line (keep this one)
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start(now);
+  osc.stop(now + dur + 0.02);
+}
+
+function sfxOk() {
+  playBeep({ freq: 880, dur: 0.05, type: "square", vol: 0.05 });
+}
+function sfxBad() {
+  playBeep({ freq: 140, dur: 0.08, type: "sawtooth", vol: 0.06 });
+}
+function sfxWin() {
+  playBeep({ freq: 523, dur: 0.06, type: "square", vol: 0.05 }); // C5
+  setTimeout(() => playBeep({ freq: 659, dur: 0.06, type: "square", vol: 0.05 }), 80);  // E5
+  setTimeout(() => playBeep({ freq: 784, dur: 0.07, type: "square", vol: 0.05 }), 160); // G5
+}
+
+// --- Sound toggle UI (inject into top nav) ---
+function updateSoundToggleUI(on) {
   const btn = document.getElementById("soundToggleBtn");
   if (!btn) return;
   btn.textContent = on ? "SND: ON" : "SND: OFF";
   btn.setAttribute("aria-pressed", on ? "true" : "false");
 }
 
-function mountSoundToggle(){
-  // be less picky: just find the first .nav
+function mountSoundToggle() {
+  // Your pages use <div class="nav">...</div>
   const nav = document.querySelector(".nav");
   if (!nav) return;
 
-  // Avoid duplicates
   if (document.getElementById("soundToggleBtn")) return;
 
   const btn = document.createElement("button");
@@ -175,69 +214,20 @@ mountSoundToggle();
 document.addEventListener("DOMContentLoaded", mountSoundToggle);
 setTimeout(mountSoundToggle, 0);
 
-
-function _getAudioCtx(){
-  if (!_audioCtx){
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return null;
-    _audioCtx = new AC();
-  }
-  // on iOS it may start "suspended" until user gesture
-  if (_audioCtx.state === "suspended") _audioCtx.resume().catch(() => {});
-  return _audioCtx;
-}
-
-function playBeep({ freq = 440, dur = 0.06, type = "square", vol = 0.05 } = {}){
-  if (!isSoundOn()) return;
-
-  const ctx = _getAudioCtx();
-  if (!ctx) return;
-
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  osc.type = type;
-  osc.frequency.value = freq;
-
-  // soft envelope to avoid clicks
-  const now = ctx.currentTime;
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(vol, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start(now);
-  osc.stop(now + dur + 0.02);
-}
-
-function sfxOk(){
-  playBeep({ freq: 880, dur: 0.05, type: "square", vol: 0.05 });
-}
-function sfxBad(){
-  playBeep({ freq: 140, dur: 0.08, type: "sawtooth", vol: 0.06 });
-}
-function sfxWin(){
-  // tiny 3-beep “unlock”
-  playBeep({ freq: 523, dur: 0.06, type: "square", vol: 0.05 }); // C5
-  setTimeout(() => playBeep({ freq: 659, dur: 0.06, type: "square", vol: 0.05 }), 80); // E5
-  setTimeout(() => playBeep({ freq: 784, dur: 0.07, type: "square", vol: 0.05 }), 160); // G5
-}
-
-
-// (optional) make available in console for debugging
+// Expose API
 window.LEVEL45 = {
+  // progress
   getProgress,
   setProgress,
   addXP,
   completeTrial,
   isComplete,
   resetProgress,
+
+  // sound
   sfxOk,
   sfxBad,
   sfxWin,
   isSoundOn,
-  toggleSound
+  toggleSound,
 };
-
