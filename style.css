@@ -813,4 +813,14 @@ a:hover{ text-decoration: underline; }
     transform: translateY(-1px);
   }
 }
+.sound-toggle{
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  opacity: .85;
+}
+@media (max-width: 700px){
+  .sound-toggle{ padding: 8px 9px; font-size: 11px; }
+}
 
