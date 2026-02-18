@@ -201,6 +201,8 @@ function mountSoundToggle() {
   btn.id = "soundToggleBtn";
   btn.className = "btn btn-ghost mono sound-toggle";
   btn.type = "button";
+  btn.title = "Sound effects";
+
 
   updateSoundToggleUI(isSoundOn());
 
