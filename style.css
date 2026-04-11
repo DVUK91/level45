@@ -784,7 +784,9 @@ a:hover{ text-decoration: underline; }
   text-shadow:
     0 0 18px rgba(31,111,91,0.75),
     0 0 36px rgba(31,111,91,0.36);
-  animation: missionFlash .58s steps(2, end) infinite;
+  animation:
+    missionFlash .58s steps(2, end) infinite,
+    missionBounce .9s var(--ease) infinite;
 }
 
 .trial-overlay p{
@@ -797,8 +799,14 @@ a:hover{ text-decoration: underline; }
 }
 
 @keyframes missionFlash{
-  0%,100%{ opacity:.55; filter:brightness(.9); transform:scale(1); }
-  50%{ opacity:1; filter:brightness(1.8); transform:scale(1.035); }
+  0%,100%{ opacity:.62; filter:brightness(.9); }
+  50%{ opacity:1; filter:brightness(1.9); }
+}
+
+@keyframes missionBounce{
+  0%,100%{ transform:translateY(0) scale(1); }
+  35%{ transform:translateY(-10px) scale(1.045); }
+  60%{ transform:translateY(2px) scale(.99); }
 }
 /* ===== Mobile Performance Mode ===== */
 @media (max-width: 700px){
