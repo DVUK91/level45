@@ -511,7 +511,20 @@ a:hover{ text-decoration: underline; }
   display:grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 10px;
-  padding: 10px 0 4px;
+  padding: 0;
+}
+
+.trial-module{
+  position: relative;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  box-shadow: 0 0 22px rgba(0,0,0,0.18) inset;
+}
+
+.trial-module-pattern{
+  padding: 16px;
 }
 
 .signal{
@@ -857,4 +870,3 @@ a:hover{ text-decoration: underline; }
     font-size: 11px;
   }
 }
-
