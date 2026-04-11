@@ -461,14 +461,40 @@ a:hover{ text-decoration: underline; }
 }
 
 .mission-card{
-  padding: 40px;            /* missions.html currently does NOT use card-pad */
+  position: relative;
+  min-height: 260px;
+  padding: 40px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: transform var(--fast) var(--ease),
+              border-color var(--fast) var(--ease),
+              box-shadow var(--fast) var(--ease);
+}
+
+.mission-card::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:
+    radial-gradient(560px 240px at 18% 0%, rgba(255,94,0,0.12), transparent 58%),
+    radial-gradient(520px 220px at 86% 12%, rgba(31,111,91,0.12), transparent 58%);
+  pointer-events:none;
+  opacity: 0.9;
+}
+
+.mission-card > *{
+  position: relative;
+  z-index: 1;
 }
 
 .mission-card:hover{
-  box-shadow: 0 0 20px rgba(255, 94, 0, 0.4);
-  transform: translateY(-5px);
+  border-color: rgba(255,94,0,0.28);
+  box-shadow: var(--shadow-soft), 0 0 20px rgba(255, 94, 0, 0.18);
+  transform: translateY(-2px);
 }
 
 .mission-number{
@@ -479,6 +505,13 @@ a:hover{ text-decoration: underline; }
   text-transform: uppercase;
   margin-bottom: 10px;
   opacity: 0.7;
+}
+
+.state-badge{
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
 
 /* Mobile: stack cards */
