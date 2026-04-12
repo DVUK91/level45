@@ -15,6 +15,8 @@ const DEFAULT_SETTINGS = {
 let audioCtx;
 let audioUnlocked = false;
 let lastRewardTheme = 0;
+let rewardThemeTimer;
+let rewardThemePlaying = false;
 
 function readJson(key, fallback){
   try{
@@ -68,6 +70,7 @@ function toggleSound(){
   const settings = getSettings();
   settings.soundOn = !settings.soundOn;
   setSettings(settings);
+  if(!settings.soundOn) stopRewardTheme();
   updateSoundToggles();
   if(settings.soundOn) unlockAudio();
   return settings;
@@ -164,6 +167,47 @@ function playRewardTheme(){
 
   if(played) lastRewardTheme = now;
   return played;
+}
+
+function startRewardTheme(){
+  if(!getSettings().soundOn) return false;
+  if(rewardThemePlaying) return true;
+  unlockAudio();
+  if(!audioCtx) return false;
+  if(audioCtx.state === "suspended"){
+    const resume = audioCtx.resume();
+    if(resume && resume.then){
+      resume.then(()=>{
+        if(audioCtx.state === "running") startRewardTheme();
+      }).catch(()=>{});
+    }
+    return true;
+  }
+  if(!playRewardTheme()) return false;
+
+  rewardThemePlaying = true;
+  rewardThemeTimer = setInterval(()=>{
+    if(!getSettings().soundOn){
+      stopRewardTheme();
+      return;
+    }
+    playRewardTheme();
+  }, 4300);
+
+  return true;
+}
+
+function stopRewardTheme(){
+  rewardThemePlaying = false;
+  lastRewardTheme = 0;
+  if(rewardThemeTimer){
+    clearInterval(rewardThemeTimer);
+    rewardThemeTimer = undefined;
+  }
+}
+
+function isRewardThemePlaying(){
+  return rewardThemePlaying;
 }
 
 function updateSoundToggles(){
@@ -293,6 +337,9 @@ window.Level45 = {
   sfxBad,
   sfxWin,
   playRewardTheme,
+  startRewardTheme,
+  stopRewardTheme,
+  isRewardThemePlaying,
   initShell,
   updateHud,
   toast,
