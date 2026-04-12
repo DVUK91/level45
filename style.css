@@ -395,21 +395,21 @@ button, a{
   inset:-8px;
   z-index:2;
   border:3px solid transparent;
-  border-top-color:rgba(95,240,173,0.95);
-  border-right-color:rgba(95,240,173,0.7);
+  border-top-color:rgba(255,154,61,0.96);
+  border-right-color:rgba(255,94,0,0.72);
   box-shadow:
-    0 0 18px rgba(95,240,173,0.26),
-    0 0 26px rgba(95,240,173,0.18) inset;
+    0 0 18px rgba(255,94,0,0.30),
+    0 0 26px rgba(255,154,61,0.18) inset;
   animation:slowRotate 6.5s linear infinite;
 }
 
 .avatar-ring::after{
   inset:4px;
   z-index:2;
-  border:1px solid rgba(95,240,173,0.28);
+  border:1px solid rgba(255,154,61,0.32);
   border-left-color:transparent;
   border-bottom-color:transparent;
-  box-shadow:0 0 14px rgba(95,240,173,0.12) inset;
+  box-shadow:0 0 14px rgba(255,94,0,0.14) inset;
   animation:counterRotate 13s linear infinite;
 }
 
@@ -432,8 +432,8 @@ button, a{
   right:8%;
   top:18%;
   height:2px;
-  background:rgba(95,240,173,0.72);
-  box-shadow:0 0 18px rgba(95,240,173,0.5);
+  background:rgba(255,154,61,0.78);
+  box-shadow:0 0 18px rgba(255,94,0,0.52);
   animation:scan 3.8s linear infinite;
 }
 
