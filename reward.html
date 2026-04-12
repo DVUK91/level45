@@ -35,6 +35,7 @@ Dinner secured. No troubleshooting required.
       </div>
 
       <div class="btnrow centered">
+        <button class="btn btn-success" id="playTheme" type="button">PLAY FINAL THEME</button>
         <a class="btn btn-primary" href="missions.html">REPLAY MISSIONS</a>
         <button class="btn" id="resetAll" type="button">RESET PROGRESS</button>
       </div>
@@ -48,6 +49,14 @@ Dinner secured. No troubleshooting required.
     Level45.sfxWin();
     Level45.playRewardTheme();
     document.addEventListener("pointerdown", Level45.playRewardTheme, {once:true});
+
+    document.getElementById("playTheme").addEventListener("click", ()=>{
+      if(!Level45.getSettings().soundOn){
+        Level45.toast("Switch SFX ON, then tap again");
+        return;
+      }
+      Level45.playRewardTheme();
+    });
 
     document.getElementById("resetAll").addEventListener("click", ()=>{
       if(confirm("Reset all progress and return to missions?")){

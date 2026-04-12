@@ -74,18 +74,28 @@ function toggleSound(){
 }
 
 function unlockAudio(){
-  if(audioUnlocked || !getSettings().soundOn) return;
+  if(audioUnlocked || !getSettings().soundOn) return audioUnlocked;
   const Ctx = window.AudioContext || window.webkitAudioContext;
-  if(!Ctx) return;
+  if(!Ctx) return false;
   if(!audioCtx) audioCtx = new Ctx();
-  if(audioCtx.state === "suspended") audioCtx.resume();
-  audioUnlocked = true;
+  if(audioCtx.state === "suspended"){
+    const resume = audioCtx.resume();
+    if(resume && resume.then){
+      resume.then(()=>{
+        audioUnlocked = audioCtx.state === "running";
+      }).catch(()=>{
+        audioUnlocked = false;
+      });
+    }
+  }
+  audioUnlocked = audioCtx.state === "running";
+  return audioUnlocked;
 }
 
 function tone(freq, duration, type, gainValue, delay){
-  if(!getSettings().soundOn) return;
+  if(!getSettings().soundOn) return false;
   unlockAudio();
-  if(!audioCtx) return;
+  if(!audioCtx || audioCtx.state !== "running") return false;
   const now = audioCtx.currentTime + (delay || 0);
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -98,6 +108,7 @@ function tone(freq, duration, type, gainValue, delay){
   gain.connect(audioCtx.destination);
   osc.start(now);
   osc.stop(now + duration + 0.02);
+  return true;
 }
 
 function sfxOk(){
@@ -117,11 +128,10 @@ function sfxWin(){
 }
 
 function playRewardTheme(){
-  if(!getSettings().soundOn) return;
+  if(!getSettings().soundOn) return false;
 
   const now = Date.now();
-  if(now - lastRewardTheme < 4200) return;
-  lastRewardTheme = now;
+  if(now - lastRewardTheme < 4200) return false;
 
   const melody = [
     [523, 0.11, 0],
@@ -144,12 +154,16 @@ function playRewardTheme(){
     [262, 0.32, 1.38]
   ];
 
+  let played = false;
   melody.forEach(([freq, duration, delay])=>{
-    tone(freq, duration, "square", 0.026, delay);
+    played = tone(freq, duration, "square", 0.026, delay) || played;
   });
   bass.forEach(([freq, duration, delay])=>{
-    tone(freq, duration, "triangle", 0.018, delay);
+    played = tone(freq, duration, "triangle", 0.018, delay) || played;
   });
+
+  if(played) lastRewardTheme = now;
+  return played;
 }
 
 function updateSoundToggles(){
