@@ -669,7 +669,6 @@ a.mission-card:hover{
   text-shadow:
     0 0 18px rgba(95,240,173,0.55),
     0 0 34px rgba(95,240,173,0.22);
-  animation:rewardTitlePulse 1.1s ease-in-out infinite;
 }
 
 .reward-birthday{
@@ -700,9 +699,7 @@ a.mission-card:hover{
 
 .reward-copy .reward-link{
   color:var(--orange-2);
-  text-decoration:underline;
-  text-decoration-thickness:2px;
-  text-underline-offset:4px;
+  text-decoration:none;
   font-weight:900;
   text-shadow:0 0 16px rgba(255,94,0,0.45);
 }
@@ -711,6 +708,7 @@ a.mission-card:hover{
 .reward-copy .reward-link:focus{
   color:var(--green-2);
   outline:0;
+  text-decoration:none;
 }
 
 .toast{
