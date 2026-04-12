@@ -373,16 +373,57 @@ button, a{
 }
 
 .avatar-ring{
+  position:relative;
+  isolation:isolate;
   width:min(78vw, 315px);
   aspect-ratio:1;
   border:1px solid rgba(255,94,0,0.32);
   border-radius:50%;
   padding:10px;
   box-shadow:0 0 36px rgba(255,94,0,0.18), 0 0 50px rgba(31,143,104,0.12) inset;
-  animation:slowRotate 16s linear infinite;
+}
+
+.avatar-ring::before,
+.avatar-ring::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  border-radius:50%;
+}
+
+.avatar-ring::before{
+  inset:-9px;
+  z-index:2;
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg 18deg,
+      rgba(95,240,173,0.92) 18deg 31deg,
+      transparent 31deg 86deg,
+      rgba(255,94,0,0.9) 86deg 101deg,
+      transparent 101deg 174deg,
+      rgba(95,240,173,0.75) 174deg 188deg,
+      transparent 188deg 267deg,
+      rgba(255,154,61,0.9) 267deg 282deg,
+      transparent 282deg 360deg
+    );
+  -webkit-mask:radial-gradient(circle, transparent 65%, #000 66%);
+  mask:radial-gradient(circle, transparent 65%, #000 66%);
+  filter:drop-shadow(0 0 10px rgba(95,240,173,0.38));
+  animation:slowRotate 9s linear infinite;
+}
+
+.avatar-ring::after{
+  inset:5px;
+  z-index:2;
+  border:1px dashed rgba(95,240,173,0.34);
+  box-shadow:0 0 18px rgba(95,240,173,0.14) inset;
+  animation:counterRotate 18s linear infinite;
 }
 
 .avatar{
+  position:relative;
+  z-index:1;
   width:100%;
   height:100%;
   display:block;
@@ -390,7 +431,7 @@ button, a{
   object-fit:cover;
   object-position:center 14%;
   filter:saturate(0.95) contrast(1.05);
-  animation:counterRotate 16s linear infinite;
+  box-shadow:0 0 22px rgba(0,0,0,0.38) inset;
 }
 
 .scanline{
@@ -857,7 +898,12 @@ a.mission-card:hover{
   .mission-grid{
     grid-template-columns:1fr;
   }
-  .avatar-stage{ min-height:360px; }
+  .avatar-stage{
+    min-height:330px;
+    padding:18px;
+  }
+  .avatar-ring{ width:min(68vw, 260px); }
+  .avatar{ object-position:center 10%; }
   .mission-card{ min-height:170px; }
   .topbar-inner{
     align-items:flex-start;
@@ -874,6 +920,12 @@ a.mission-card:hover{
   .brand{ min-width:0; }
   .nav a,
   .nav-button{ padding:7px 8px; }
+  .avatar-stage{
+    min-height:270px;
+    padding:14px;
+  }
+  .avatar-ring{ width:min(70vw, 225px); }
+  .avatar{ object-position:center 8%; }
   .code-display{
     min-width:0;
     width:100%;
