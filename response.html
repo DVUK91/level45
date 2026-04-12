@@ -99,7 +99,12 @@
         round++;
         if(round >= codes.length){
           Level45.completeTrial("response");
-          Level45.showCompleteOverlay("reward.html");
+          Level45.showCompleteOverlay("reward.html", {
+            kicker: "MISSION COMPLETE",
+            title: "REWARD UNLOCKED",
+            message: "Final briefing loading.",
+            delay: 3800
+          });
           return;
         }
         message.textContent = "Override accepted.";

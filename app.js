@@ -283,19 +283,26 @@ function toast(message){
   toast.timer = setTimeout(()=>el.classList.remove("show"), 1800);
 }
 
-function showCompleteOverlay(nextUrl){
+function showCompleteOverlay(nextUrl, options){
+  const config = {
+    kicker: "SYSTEM CONFIRMED",
+    title: "MISSION COMPLETE",
+    message: "Progress saved. Next route unlocked.",
+    delay: 1450,
+    ...options
+  };
   const overlay = document.createElement("div");
   overlay.className = "complete-overlay";
   overlay.innerHTML = `
     <div class="complete-panel">
-      <p class="kicker">SYSTEM CONFIRMED</p>
-      <h2>TRIAL COMPLETE</h2>
-      <p>Progress saved. Next route unlocked.</p>
+      <p class="kicker">${config.kicker}</p>
+      <h2>${config.title}</h2>
+      <p>${config.message}</p>
     </div>
   `;
   document.body.appendChild(overlay);
   sfxWin();
-  setTimeout(()=>{ window.location.href = nextUrl; }, 1450);
+  setTimeout(()=>{ window.location.href = nextUrl; }, config.delay);
 }
 
 function requireUnlocked(kind){
