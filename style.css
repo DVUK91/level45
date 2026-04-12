@@ -392,33 +392,25 @@ button, a{
 }
 
 .avatar-ring::before{
-  inset:-9px;
+  inset:-8px;
   z-index:2;
-  background:
-    conic-gradient(
-      from 0deg,
-      transparent 0deg 18deg,
-      rgba(95,240,173,0.92) 18deg 31deg,
-      transparent 31deg 86deg,
-      rgba(255,94,0,0.9) 86deg 101deg,
-      transparent 101deg 174deg,
-      rgba(95,240,173,0.75) 174deg 188deg,
-      transparent 188deg 267deg,
-      rgba(255,154,61,0.9) 267deg 282deg,
-      transparent 282deg 360deg
-    );
-  -webkit-mask:radial-gradient(circle, transparent 65%, #000 66%);
-  mask:radial-gradient(circle, transparent 65%, #000 66%);
-  filter:drop-shadow(0 0 10px rgba(95,240,173,0.38));
-  animation:slowRotate 9s linear infinite;
+  border:3px solid transparent;
+  border-top-color:rgba(95,240,173,0.95);
+  border-right-color:rgba(95,240,173,0.7);
+  box-shadow:
+    0 0 18px rgba(95,240,173,0.26),
+    0 0 26px rgba(95,240,173,0.18) inset;
+  animation:slowRotate 6.5s linear infinite;
 }
 
 .avatar-ring::after{
-  inset:5px;
+  inset:4px;
   z-index:2;
-  border:1px dashed rgba(95,240,173,0.34);
-  box-shadow:0 0 18px rgba(95,240,173,0.14) inset;
-  animation:counterRotate 18s linear infinite;
+  border:1px solid rgba(95,240,173,0.28);
+  border-left-color:transparent;
+  border-bottom-color:transparent;
+  box-shadow:0 0 14px rgba(95,240,173,0.12) inset;
+  animation:counterRotate 13s linear infinite;
 }
 
 .avatar{
