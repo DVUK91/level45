@@ -212,6 +212,17 @@ function requireUnlocked(kind){
 
 function bindGlobalEvents(){
   document.addEventListener("pointerdown", unlockAudio, {once:true});
+  let lastTouchEnd = 0;
+  document.addEventListener("touchend", (event)=>{
+    const now = Date.now();
+    if(now - lastTouchEnd <= 320){
+      event.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, {passive:false});
+  document.addEventListener("gesturestart", (event)=>{
+    event.preventDefault();
+  });
   document.addEventListener("click", (event)=>{
     if(event.target.matches("[data-sound-toggle]")){
       toggleSound();
