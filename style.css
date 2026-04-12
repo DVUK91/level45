@@ -706,16 +706,16 @@ a.mission-card:hover{
 }
 
 .reward-birthday{
-  margin:0 auto;
+  margin:0 auto 6px;
   color:var(--green-2);
   font-family:var(--mono);
-  font-size:clamp(20px, 5vw, 32px);
+  font-size:clamp(36px, 10vw, 78px);
   font-weight:900;
-  letter-spacing:1.5px;
-  text-shadow:
-    0 0 18px rgba(95,240,173,0.55),
-    0 0 28px rgba(255,94,0,0.18);
-  animation:rewardBirthdayGlow 1.15s ease-in-out infinite;
+  letter-spacing:1px;
+  line-height:.95;
+  text-transform:uppercase;
+  text-shadow:none;
+  animation:rewardBirthdayFlash .82s steps(2, end) infinite;
 }
 
 .reward-progress{
@@ -855,16 +855,14 @@ a.mission-card:hover{
   50%{ transform:scale(1.018); filter:brightness(1.35); }
 }
 
-@keyframes rewardBirthdayGlow{
+@keyframes rewardBirthdayFlash{
   0%,100%{
     color:var(--green-2);
-    transform:translateY(0) scale(1);
-    filter:brightness(1);
+    opacity:1;
   }
   50%{
     color:var(--orange-2);
-    transform:translateY(-2px) scale(1.015);
-    filter:brightness(1.35);
+    opacity:.72;
   }
 }
 
