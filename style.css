@@ -21,9 +21,9 @@
   --orange-glow: rgba(255, 94, 0, 0.35);
 
   /* Deep green (secondary accent; not neon) */
-  --green: #1f6f5b;
-  --green-2: #2a8a72;
-  --green-glow: rgba(31, 111, 91, 0.22);
+  --green: #1f8f68;
+  --green-2: #5ff0ad;
+  --green-glow: rgba(95, 240, 173, 0.26);
 
   /* Status */
   --danger: #ff4d6d;
@@ -34,9 +34,9 @@
   --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
 
   /* Radius & shadow */
-  --r-sm: 12px;
-  --r-md: 16px;
-  --r-lg: 22px;
+  --r-sm: 8px;
+  --r-md: 8px;
+  --r-lg: 8px;
 
   --shadow: 0 18px 50px rgba(0,0,0,0.5);
   --shadow-soft: 0 14px 34px rgba(0,0,0,0.35);
@@ -67,14 +67,29 @@ body{
   font-family: var(--sans);
   line-height: 1.5;
   background:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
     radial-gradient(900px 520px at 20% 10%, rgba(255,94,0,0.12), transparent 55%),
     radial-gradient(820px 540px at 82% 22%, rgba(31,111,91,0.12), transparent 60%),
     radial-gradient(700px 520px at 55% 92%, rgba(255,94,0,0.06), transparent 60%),
     var(--bg);
+  background-size: 28px 28px, 28px 28px, auto, auto, auto, auto;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index: 999;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 4px);
+  mix-blend-mode: overlay;
+  opacity:0.18;
 }
 
 a{ color: var(--orange-2); text-decoration: none; }
 a:hover{ text-decoration: underline; }
+button, a{ -webkit-tap-highlight-color: transparent; }
 
 .mono{ font-family: var(--mono); }
 .muted{ color: var(--muted); }
@@ -98,7 +113,7 @@ a:hover{ text-decoration: underline; }
   z-index: 20;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background: rgba(11,11,15,0.72);
+  background: rgba(8,9,13,0.78);
   border-bottom: 1px solid var(--line);
 }
 
@@ -126,7 +141,7 @@ a:hover{ text-decoration: underline; }
 
 .brand{
   display:flex;
-  align-items:baseline;
+  align-items:center;
   gap: 10px;
   min-width: 240px;
 }
@@ -146,11 +161,11 @@ a:hover{ text-decoration: underline; }
 
 /* Status dot */
 .dot{
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
-  background: var(--green);
-  box-shadow: 0 0 0 6px rgba(31,111,91,0.10);
+  background: var(--green-2);
+  box-shadow: 0 0 18px rgba(95,240,173,0.55);
   flex: 0 0 auto;
   transform: translateY(-1px);
 }
@@ -167,9 +182,9 @@ a:hover{ text-decoration: underline; }
   font-size: 12px;
   color: var(--muted);
   padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.02);
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
   text-decoration: none;
 }
 .nav a:hover{
@@ -181,6 +196,7 @@ a:hover{ text-decoration: underline; }
   color: var(--text);
   border-color: rgba(255,94,0,0.35);
   box-shadow: 0 0 22px var(--orange-glow);
+  background: rgba(255,94,0,0.09);
 }
 
 /* Progress bar */
@@ -190,10 +206,10 @@ a:hover{ text-decoration: underline; }
   padding: 0 var(--pad);
 }
 .progress{
-  height: 12px;
+  height: 10px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   overflow:hidden;
   margin: 14px 0 0;
 }
@@ -202,7 +218,7 @@ a:hover{ text-decoration: underline; }
   width: 0%;
   background: linear-gradient(90deg, var(--orange), var(--orange-2));
   box-shadow: 0 0 18px var(--orange-glow);
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   transition: width var(--med) var(--ease);
 }
 
@@ -246,8 +262,8 @@ a:hover{ text-decoration: underline; }
   position:relative;
   border-radius: var(--r-lg);
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-  box-shadow: var(--shadow-soft);
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.022));
+  box-shadow: var(--shadow);
   overflow:hidden;
 }
 .card::before{
@@ -368,6 +384,59 @@ a:hover{ text-decoration: underline; }
   .grid-2{ grid-template-columns: 1fr; }
 }
 
+/* Profile upgrade: Desktop-style avatar console */
+.profile-avatar-card{
+  display:flex;
+  flex-direction:column;
+}
+
+.avatar-frame{
+  width:min(100%, 330px);
+  aspect-ratio:1;
+  margin: 0 auto;
+  border:1px solid rgba(255,94,0,0.32);
+  border-radius:50%;
+  padding:10px;
+  box-shadow:
+    0 0 36px rgba(255,94,0,0.18),
+    0 0 50px rgba(31,143,104,0.12) inset;
+  animation: avatarSpin 16s linear infinite;
+}
+
+.profile-avatar-img{
+  width:100%;
+  height:100%;
+  display:block;
+  border-radius:50%;
+  object-fit:cover;
+  filter:saturate(.95) contrast(1.05);
+  animation: avatarCounterSpin 16s linear infinite;
+}
+
+.profile-stats-card .section{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+  margin-top: 14px;
+  font-family: var(--mono);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.profile-stats-card .section > div:first-child{
+  color: var(--text);
+}
+
+@keyframes avatarSpin{
+  from{ transform:rotate(0deg); }
+  to{ transform:rotate(360deg); }
+}
+
+@keyframes avatarCounterSpin{
+  from{ transform:rotate(0deg); }
+  to{ transform:rotate(-360deg); }
+}
+
 /* Pills / tags */
 .pill{
   display:inline-flex;
@@ -436,7 +505,7 @@ a:hover{ text-decoration: underline; }
    ========================================= */
 
 .mission-wrapper{
-  padding: 80px 10%;
+  padding: 74px 10%;
   text-align: center;
 }
 
@@ -462,12 +531,12 @@ a:hover{ text-decoration: underline; }
 
 .mission-card{
   position: relative;
-  min-height: 260px;
+  min-height: 250px;
   padding: 40px;
   border-radius: var(--r-lg);
   border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow);
   overflow: hidden;
   cursor: pointer;
   transition: transform var(--fast) var(--ease),
@@ -493,7 +562,7 @@ a:hover{ text-decoration: underline; }
 
 .mission-card:hover{
   border-color: rgba(255,94,0,0.28);
-  box-shadow: var(--shadow-soft), 0 0 20px rgba(255, 94, 0, 0.18);
+  box-shadow: var(--shadow), 0 0 24px rgba(255, 94, 0, 0.18);
   transform: translateY(-2px);
 }
 
@@ -549,7 +618,7 @@ a:hover{ text-decoration: underline; }
 
 .trial-module{
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--r-md);
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   overflow: hidden;
@@ -563,7 +632,7 @@ a:hover{ text-decoration: underline; }
 .signal{
   position: relative;
   height: 54px;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.03);
   cursor: pointer;
@@ -696,7 +765,7 @@ a:hover{ text-decoration: underline; }
 .hud-pill{
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.03);
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   padding: 8px 12px;
   font-size: 13px;
 }
@@ -728,7 +797,7 @@ a:hover{ text-decoration: underline; }
 .rhythm-track{
   position: relative;
   height: 54px;
-  border-radius: 16px;
+  border-radius: var(--r-md);
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   overflow: hidden;
@@ -736,7 +805,7 @@ a:hover{ text-decoration: underline; }
 .rhythm-target{
   position: absolute;
   top: 0; bottom: 0;
-  border-radius: 16px;
+  border-radius: var(--r-md);
   background: rgba(255,94,0,0.14);
   border: 1px solid rgba(255,94,0,0.35);
   box-shadow: 0 0 24px rgba(255,94,0,0.14);
@@ -744,7 +813,7 @@ a:hover{ text-decoration: underline; }
 .rhythm-cursor{
   position: absolute;
   top: 6px; bottom: 6px;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: rgba(255,255,255,0.12);
   border: 1px solid rgba(255,255,255,0.22);
   box-shadow: 0 0 18px rgba(255,255,255,0.08);
@@ -878,7 +947,7 @@ a:hover{ text-decoration: underline; }
 }
 .sound-toggle{
   padding: 8px 10px;
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   font-size: 12px;
   letter-spacing: 1px;
   opacity: .85;
@@ -892,7 +961,7 @@ a:hover{ text-decoration: underline; }
   justify-content:center;
   margin-left: 8px;
   padding: 8px 10px;
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   border: 1px solid rgba(255,255,255,0.14);
   background: rgba(255,255,255,0.06);
   color: var(--text);
