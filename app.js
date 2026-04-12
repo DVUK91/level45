@@ -72,7 +72,7 @@ function toggleSound(){
   setSettings(settings);
   if(!settings.soundOn) stopRewardTheme();
   updateSoundToggles();
-  if(settings.soundOn) unlockAudio();
+  if(settings.soundOn) startRewardTheme();
   return settings;
 }
 
@@ -268,6 +268,7 @@ function initShell(active){
     `;
   }
   updateHud();
+  startRewardTheme();
 }
 
 function toast(message){
@@ -313,7 +314,10 @@ function requireUnlocked(kind){
 }
 
 function bindGlobalEvents(){
-  document.addEventListener("pointerdown", unlockAudio, {once:true});
+  document.addEventListener("pointerdown", ()=>{
+    unlockAudio();
+    startRewardTheme();
+  }, {once:true});
   let lastTouchEnd = 0;
   document.addEventListener("touchend", (event)=>{
     const now = Date.now();
@@ -330,6 +334,7 @@ function bindGlobalEvents(){
       toggleSound();
     }
   });
+  window.addEventListener("pagehide", stopRewardTheme);
 }
 
 bindGlobalEvents();

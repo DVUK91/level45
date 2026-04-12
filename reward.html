@@ -33,7 +33,6 @@ Dinner secured. No troubleshooting required.
       </div>
 
       <div class="btnrow centered">
-        <button class="btn btn-success" id="playTheme" type="button">START FINAL MUSIC</button>
         <a class="btn btn-primary" href="missions.html">REPLAY MISSIONS</a>
         <button class="btn" id="resetAll" type="button">RESET PROGRESS</button>
       </div>
@@ -45,27 +44,6 @@ Dinner secured. No troubleshooting required.
     Level45.requireUnlocked("reward");
     Level45.initShell("missions");
     Level45.sfxWin();
-
-    const playTheme = document.getElementById("playTheme");
-    function syncThemeButton(){
-      playTheme.textContent = Level45.isRewardThemePlaying() ? "STOP FINAL MUSIC" : "START FINAL MUSIC";
-    }
-
-    playTheme.addEventListener("click", ()=>{
-      if(!Level45.getSettings().soundOn){
-        Level45.toast("Switch SFX ON, then tap again");
-        return;
-      }
-      if(Level45.isRewardThemePlaying()){
-        Level45.stopRewardTheme();
-        syncThemeButton();
-      }else if(Level45.startRewardTheme()){
-        playTheme.textContent = "STOP FINAL MUSIC";
-      }else{
-        Level45.toast("Tap again to unlock sound");
-      }
-    });
-    window.addEventListener("pagehide", Level45.stopRewardTheme);
 
     document.getElementById("resetAll").addEventListener("click", ()=>{
       if(confirm("Reset all progress and return to missions?")){
