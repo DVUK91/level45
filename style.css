@@ -989,3 +989,14 @@ button, a{ -webkit-tap-highlight-color: transparent; }
     font-size: 11px;
   }
 }
+
+/* Keep the profile avatar alive on phone even when other costly animations pause. */
+@media (max-width: 700px){
+  .avatar-frame{
+    animation: avatarSpin 16s linear infinite !important;
+  }
+
+  .profile-avatar-img{
+    animation: avatarCounterSpin 16s linear infinite !important;
+  }
+}
