@@ -46,6 +46,8 @@ Dinner secured. No troubleshooting required.
     Level45.requireUnlocked("reward");
     Level45.initShell("missions");
     Level45.sfxWin();
+    Level45.playRewardTheme();
+    document.addEventListener("pointerdown", Level45.playRewardTheme, {once:true});
 
     document.getElementById("resetAll").addEventListener("click", ()=>{
       if(confirm("Reset all progress and return to missions?")){

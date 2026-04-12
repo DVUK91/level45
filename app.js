@@ -14,6 +14,7 @@ const DEFAULT_SETTINGS = {
 
 let audioCtx;
 let audioUnlocked = false;
+let lastRewardTheme = 0;
 
 function readJson(key, fallback){
   try{
@@ -113,6 +114,42 @@ function sfxWin(){
   tone(440, 0.1, "square", 0.035, 0);
   tone(660, 0.1, "square", 0.035, 0.1);
   tone(880, 0.16, "square", 0.035, 0.2);
+}
+
+function playRewardTheme(){
+  if(!getSettings().soundOn) return;
+
+  const now = Date.now();
+  if(now - lastRewardTheme < 4200) return;
+  lastRewardTheme = now;
+
+  const melody = [
+    [523, 0.11, 0],
+    [659, 0.11, 0.12],
+    [784, 0.13, 0.24],
+    [1047, 0.18, 0.38],
+    [988, 0.1, 0.62],
+    [1047, 0.1, 0.74],
+    [1175, 0.16, 0.86],
+    [1047, 0.22, 1.08],
+    [784, 0.12, 1.38],
+    [880, 0.12, 1.5],
+    [1047, 0.3, 1.64]
+  ];
+
+  const bass = [
+    [131, 0.2, 0],
+    [196, 0.2, 0.38],
+    [165, 0.2, 0.76],
+    [262, 0.32, 1.38]
+  ];
+
+  melody.forEach(([freq, duration, delay])=>{
+    tone(freq, duration, "square", 0.026, delay);
+  });
+  bass.forEach(([freq, duration, delay])=>{
+    tone(freq, duration, "triangle", 0.018, delay);
+  });
 }
 
 function updateSoundToggles(){
@@ -241,6 +278,7 @@ window.Level45 = {
   sfxOk,
   sfxBad,
   sfxWin,
+  playRewardTheme,
   initShell,
   updateHud,
   toast,
