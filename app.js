@@ -1,237 +1,239 @@
-// LEVEL45 — tiny state (no backend)
-// Saves progress in localStorage (mobile + laptop friendly)
+const STORAGE_KEY = "level45.progress";
+const SETTINGS_KEY = "level45.settings";
 
-const STORAGE_KEY = "level45_progress_v1";
-
-// --- Settings (global) ---
-const SETTINGS_KEY = "level45_settings_v1";
-const DEFAULT_SETTINGS = { soundOn: true };
-
-function getSettings() {
-  const raw = localStorage.getItem(SETTINGS_KEY);
-  if (!raw) return { ...DEFAULT_SETTINGS };
-  try {
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
-  } catch {
-    return { ...DEFAULT_SETTINGS };
-  }
-}
-
-function setSettings(next) {
-  const clean = {
-    ...DEFAULT_SETTINGS,
-    ...next,
-    soundOn: Boolean(next.soundOn),
-  };
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(clean));
-  return clean;
-}
-
-function isSoundOn() {
-  return getSettings().soundOn;
-}
-
-function toggleSound() {
-  const s = getSettings();
-  const next = setSettings({ soundOn: !s.soundOn });
-  updateSoundToggleUI(next.soundOn);
-  return next.soundOn;
-}
-
-// --- Progress ---
 const DEFAULT_PROGRESS = {
   xp: 0,
-  pattern: false,   // Trial 1
-  rhythm: false,    // Trial 2
-  response: false,  // Trial 3
+  pattern: false,
+  rhythm: false,
+  response: false
 };
 
-function getProgress() {
-  // 1) read new format
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw);
-      return {
-        ...DEFAULT_PROGRESS,
-        ...parsed,
-        xp: Number(parsed.xp || 0),
-      };
-    } catch {
-      return { ...DEFAULT_PROGRESS };
-    }
+const DEFAULT_SETTINGS = {
+  soundOn: true
+};
+
+let audioCtx;
+let audioUnlocked = false;
+
+function readJson(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? {...fallback, ...JSON.parse(raw)} : {...fallback};
+  }catch{
+    return {...fallback};
   }
-
-  // 2) legacy support (from your old version)
-  const legacyXp = Number(localStorage.getItem("xp") || 0);
-  const legacyTrial1Done = localStorage.getItem("trial1") === "done";
-
-  const migrated = {
-    ...DEFAULT_PROGRESS,
-    xp: legacyXp,
-    pattern: legacyTrial1Done,
-  };
-
-  setProgress(migrated);
-  return migrated;
 }
 
-function setProgress(next) {
-  const clean = {
-    ...DEFAULT_PROGRESS,
-    ...next,
-    xp: Number(next.xp || 0),
-    pattern: Boolean(next.pattern),
-    rhythm: Boolean(next.rhythm),
-    response: Boolean(next.response),
-  };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
-  return clean;
+function writeJson(key, value){
+  localStorage.setItem(key, JSON.stringify(value));
 }
 
-function addXP(amount) {
-  const p = getProgress();
-  p.xp += Number(amount || 0);
-  return setProgress(p);
+function getProgress(){
+  return readJson(STORAGE_KEY, DEFAULT_PROGRESS);
 }
 
-function completeTrial(trialKey, xpReward = 25) {
-  const p = getProgress();
-  if (trialKey in p) p[trialKey] = true;
-  p.xp += Number(xpReward || 0);
-  return setProgress(p);
+function setProgress(next){
+  const progress = {...DEFAULT_PROGRESS, ...next};
+  writeJson(STORAGE_KEY, progress);
+  return progress;
 }
 
-function isComplete(trialKey) {
-  const p = getProgress();
-  return Boolean(p[trialKey]);
+function completeTrial(trialKey){
+  const progress = getProgress();
+  if(!progress[trialKey]){
+    progress[trialKey] = true;
+    progress.xp = Math.min(300, progress.xp + 100);
+  }
+  setProgress(progress);
+  return progress;
 }
 
-function resetProgress() {
-  // remove new storage
+function resetProgress(){
   localStorage.removeItem(STORAGE_KEY);
-
-  // also remove legacy keys (clean reset)
-  localStorage.removeItem("xp");
-  localStorage.removeItem("trial1");
-
-  return { ...DEFAULT_PROGRESS };
+  return getProgress();
 }
 
-// --- Sound FX (tiny, retro) ---
-let _audioCtx = null;
-
-function _getAudioCtx() {
-  if (!_audioCtx) {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return null;
-    _audioCtx = new AC();
-  }
-  if (_audioCtx.state === "suspended") _audioCtx.resume().catch(() => {});
-  return _audioCtx;
+function getSettings(){
+  return readJson(SETTINGS_KEY, DEFAULT_SETTINGS);
 }
 
-// Unlock audio on first user interaction (mobile safe)
-document.addEventListener(
-  "pointerdown",
-  () => {
-    const ctx = _getAudioCtx();
-    if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
-  },
-  { once: true }
-);
+function setSettings(next){
+  const settings = {...DEFAULT_SETTINGS, ...next};
+  writeJson(SETTINGS_KEY, settings);
+  return settings;
+}
 
-function playBeep({ freq = 440, dur = 0.06, type = "square", vol = 0.05 } = {}) {
-  if (!isSoundOn()) return;
+function toggleSound(){
+  const settings = getSettings();
+  settings.soundOn = !settings.soundOn;
+  setSettings(settings);
+  updateSoundToggles();
+  if(settings.soundOn) unlockAudio();
+  return settings;
+}
 
-  const ctx = _getAudioCtx();
-  if (!ctx) return;
+function unlockAudio(){
+  if(audioUnlocked || !getSettings().soundOn) return;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if(!Ctx) return;
+  if(!audioCtx) audioCtx = new Ctx();
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  audioUnlocked = true;
+}
 
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  osc.type = type;
-  osc.frequency.value = freq;
-
-  // soft envelope to avoid clicks
-  const now = ctx.currentTime;
+function tone(freq, duration, type, gainValue, delay){
+  if(!getSettings().soundOn) return;
+  unlockAudio();
+  if(!audioCtx) return;
+  const now = audioCtx.currentTime + (delay || 0);
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type || "square";
+  osc.frequency.setValueAtTime(freq, now);
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(vol, now + 0.01);
-  gain.gain.exponentialRampToToValueAtTime?.(0.0001, now + dur); // (safety if browser supports typo)
-  // Correct line (keep this one)
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-
+  gain.gain.exponentialRampToValueAtTime(gainValue || 0.05, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
   osc.connect(gain);
-  gain.connect(ctx.destination);
-
+  gain.connect(audioCtx.destination);
   osc.start(now);
-  osc.stop(now + dur + 0.02);
+  osc.stop(now + duration + 0.02);
 }
 
-function sfxOk() {
-  playBeep({ freq: 880, dur: 0.05, type: "square", vol: 0.05 });
-}
-function sfxBad() {
-  playBeep({ freq: 140, dur: 0.08, type: "sawtooth", vol: 0.06 });
-}
-function sfxWin() {
-  playBeep({ freq: 523, dur: 0.06, type: "square", vol: 0.05 }); // C5
-  setTimeout(() => playBeep({ freq: 659, dur: 0.06, type: "square", vol: 0.05 }), 80);  // E5
-  setTimeout(() => playBeep({ freq: 784, dur: 0.07, type: "square", vol: 0.05 }), 160); // G5
+function sfxOk(){
+  tone(540, 0.08, "square", 0.035, 0);
+  tone(810, 0.1, "square", 0.032, 0.07);
 }
 
-// --- Sound toggle UI (inject into top nav) ---
-function updateSoundToggleUI(on) {
-  const btn = document.getElementById("soundToggleBtn");
-  if (!btn) return;
-
-  btn.textContent = on ? "SFX: ON" : "SFX: OFF";
-  btn.setAttribute("aria-pressed", on ? "true" : "false");
+function sfxBad(){
+  tone(180, 0.12, "sawtooth", 0.04, 0);
+  tone(120, 0.14, "sawtooth", 0.035, 0.08);
 }
 
+function sfxWin(){
+  tone(440, 0.1, "square", 0.035, 0);
+  tone(660, 0.1, "square", 0.035, 0.1);
+  tone(880, 0.16, "square", 0.035, 0.2);
+}
 
-function mountSoundToggle() {
-  // Your pages use <div class="nav">...</div>
-  const nav = document.querySelector(".nav");
-  if (!nav) return;
-
-  if (document.getElementById("soundToggleBtn")) return;
-
-  const btn = document.createElement("button");
-  btn.id = "soundToggleBtn";
-  btn.className = "btn btn-ghost mono sound-toggle";
-  btn.type = "button";
-  btn.title = "Sound effects";
-
-
-  updateSoundToggleUI(isSoundOn());
-
-  btn.addEventListener("click", () => {
-    toggleSound();
+function updateSoundToggles(){
+  const settings = getSettings();
+  document.querySelectorAll("[data-sound-toggle]").forEach((button)=>{
+    button.textContent = `SFX: ${settings.soundOn ? "ON" : "OFF"}`;
+    button.setAttribute("aria-pressed", String(settings.soundOn));
   });
-
-  nav.appendChild(btn);
 }
 
-// Try multiple times (works even if scripts load early/oddly)
-mountSoundToggle();
-document.addEventListener("DOMContentLoaded", mountSoundToggle);
-setTimeout(mountSoundToggle, 0);
+function trialCount(progress){
+  return ["pattern", "rhythm", "response"].filter((key)=>progress[key]).length;
+}
 
-// Expose API
-window.LEVEL45 = {
-  // progress
+function progressPercent(progress){
+  return Math.round((trialCount(progress) / 3) * 100);
+}
+
+function updateHud(){
+  const progress = getProgress();
+  document.querySelectorAll("[data-progress-bar]").forEach((bar)=>{
+    bar.style.width = `${progressPercent(progress)}%`;
+  });
+  document.querySelectorAll("[data-xp]").forEach((el)=>{
+    el.textContent = String(progress.xp);
+  });
+  document.querySelectorAll("[data-complete-count]").forEach((el)=>{
+    el.textContent = String(trialCount(progress));
+  });
+  updateSoundToggles();
+}
+
+function initShell(active){
+  const topbar = document.querySelector("[data-topbar]");
+  const progress = getProgress();
+  if(topbar){
+    topbar.classList.add("topbar");
+    topbar.innerHTML = `
+      <div class="topbar-inner">
+        <a class="brand" href="index.html" aria-label="Level 45 home">
+          <span class="status-dot"></span>
+          <span>
+            <span class="brand-title">LEVEL 45</span>
+            <span class="brand-sub">PLAYER: LUKI13</span>
+          </span>
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="profile.html" ${active === "profile" ? "class='active'" : ""}>PROFILE</a>
+          <a href="missions.html" ${active === "missions" ? "class='active'" : ""}>MISSIONS</a>
+          <button class="nav-button" type="button" data-sound-toggle title="Sound effects">SFX: ON</button>
+        </nav>
+      </div>
+      <div class="progress-wrap" aria-label="mission progress">
+        <div class="progress ${progressPercent(progress) === 100 ? "success" : ""}">
+          <div class="bar" data-progress-bar></div>
+        </div>
+      </div>
+    `;
+  }
+  updateHud();
+}
+
+function toast(message){
+  let el = document.querySelector(".toast");
+  if(!el){
+    el = document.createElement("div");
+    el.className = "toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(()=>el.classList.remove("show"), 1800);
+}
+
+function showCompleteOverlay(nextUrl){
+  const overlay = document.createElement("div");
+  overlay.className = "complete-overlay";
+  overlay.innerHTML = `
+    <div class="complete-panel">
+      <p class="kicker">SYSTEM CONFIRMED</p>
+      <h2>TRIAL COMPLETE</h2>
+      <p>Progress saved. Next route unlocked.</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  sfxWin();
+  setTimeout(()=>{ window.location.href = nextUrl; }, 1450);
+}
+
+function requireUnlocked(kind){
+  const progress = getProgress();
+  if(kind === "rhythm" && !progress.pattern) window.location.href = "missions.html";
+  if(kind === "response" && !progress.rhythm) window.location.href = "missions.html";
+  if(kind === "reward" && !progress.response) window.location.href = "missions.html";
+}
+
+function bindGlobalEvents(){
+  document.addEventListener("pointerdown", unlockAudio, {once:true});
+  document.addEventListener("click", (event)=>{
+    if(event.target.matches("[data-sound-toggle]")){
+      toggleSound();
+    }
+  });
+}
+
+bindGlobalEvents();
+window.Level45 = {
   getProgress,
   setProgress,
-  addXP,
   completeTrial,
-  isComplete,
   resetProgress,
-
-  // sound
+  getSettings,
+  toggleSound,
   sfxOk,
   sfxBad,
   sfxWin,
-  isSoundOn,
-  toggleSound,
+  initShell,
+  updateHud,
+  toast,
+  showCompleteOverlay,
+  requireUnlocked,
+  progressPercent
 };

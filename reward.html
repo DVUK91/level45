@@ -1,435 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reward Unlocked // Level 45</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LEVEL 45 - Reward</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    .reward-hero{
-      text-align:center;
-      padding: 30px 18px;
-    }
-    .reward-title{
-      font-family: var(--sans);
-      font-size: clamp(32px, 7vw, 50px);
-      font-weight: 900;
-      letter-spacing: 1px;
-      margin: 14px 0 8px;
-      line-height: 1;
-      text-transform: uppercase;
-      text-shadow: 0 0 22px rgba(255,94,0,0.28);
-    }
-    .reward-sub{
-      opacity: .85;
-      margin: 0 auto;
-      max-width: 48ch;
-    }
-    .reward-card{
-      margin-top: 18px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background:
-        radial-gradient(520px 180px at 18% 0%, rgba(255,94,0,0.14), transparent 55%),
-        radial-gradient(520px 180px at 88% 10%, rgba(31,111,91,0.16), transparent 55%),
-        rgba(255,255,255,0.05);
-      padding: 18px;
-      text-align:center;
-      box-shadow: 0 0 34px rgba(255,94,0,0.12);
-    }
-    .reward-card h2{
-      font-family: var(--sans);
-      margin: 0 0 6px;
-      font-size: 20px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-    .birthday-line{
-      font-family: var(--sans);
-      color: var(--orange-2);
-      font-size: clamp(28px, 6.5vw, 48px);
-      font-weight: 900;
-      letter-spacing: 1px;
-      line-height: 1.04;
-      margin: 0 auto 10px;
-      text-transform: uppercase;
-      text-shadow:
-        0 0 18px rgba(255,94,0,0.32),
-        0 0 32px rgba(255,94,0,0.16);
-      animation: birthdayPulse 1.4s ease-in-out infinite;
-    }
-    .dinner-details{
-      display:grid;
-      gap:10px;
-      max-width: 520px;
-      margin: 16px auto 0;
-      text-align:left;
-    }
-    .detail-row{
-      display:grid;
-      grid-template-columns: 92px 1fr;
-      gap:12px;
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 8px;
-      background: rgba(0,0,0,0.18);
-      padding: 11px 12px;
-    }
-    .detail-label{
-      opacity:.62;
-      letter-spacing: 1px;
-    }
-    .detail-value{
-      font-weight: 850;
-    }
-    .detail-value a{
-      color: var(--orange-2);
-      text-decoration: none;
-    }
-    .detail-value a:hover{ text-decoration: underline; }
-    .reward-note{
-      opacity:.8;
-      font-size: 13px;
-      margin: 16px 0 0;
-      text-align:center;
-    }
-    .ramen-stage{
-      position: relative;
-      width: min(100%, 420px);
-      height: 206px;
-      margin: 16px auto 8px;
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 8px;
-      background:
-        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
-        rgba(0,0,0,0.22);
-      background-size: 18px 18px;
-      overflow: hidden;
-      box-shadow: inset 0 0 24px rgba(0,0,0,0.32);
-      animation: arcadeFlash 1.05s steps(2, end) infinite;
-    }
-    .ramen-stage::before,
-    .ramen-stage::after{
-      content:"";
-      position:absolute;
-      top: 18px;
-      width: 8px;
-      height: 8px;
-      background: var(--orange-2);
-      box-shadow:
-        54px 22px 0 rgba(31,111,91,0.95),
-        110px 4px 0 rgba(255,255,255,0.42),
-        270px 30px 0 rgba(255,94,0,0.78),
-        330px 10px 0 rgba(255,255,255,0.34);
-      animation: confettiDrop 1.8s linear infinite;
-    }
-    .ramen-stage::after{
-      left: 42px;
-      animation-delay: .9s;
-      opacity:.65;
-    }
-    .pixel-person{
-      position:absolute;
-      left:50%;
-      top:34px;
-      width:108px;
-      height:118px;
-      transform:translateX(-50%);
-      animation: hungryBob .56s ease-in-out infinite;
-    }
-    .pixel-head{
-      position:absolute;
-      left:31px;
-      top:0;
-      width:46px;
-      height:46px;
-      border-radius: 14px;
-      background:#f0c097;
-      box-shadow:
-        inset 0 -7px 0 rgba(0,0,0,0.12),
-        0 0 0 4px rgba(0,0,0,0.22);
-    }
-    .pixel-head::before{
-      content:"";
-      position:absolute;
-      left:7px;
-      top:-7px;
-      width:34px;
-      height:16px;
-      border-radius: 12px 12px 6px 6px;
-      background:#1d1c1d;
-    }
-    .pixel-head::after{
-      content:"";
-      position:absolute;
-      left:12px;
-      top:20px;
-      width:5px;
-      height:5px;
-      background:#161616;
-      border-radius:99px;
-      box-shadow:18px 0 0 #161616, 9px 13px 0 0 rgba(120,42,28,0.95);
-      animation: chewFace .56s steps(2, end) infinite;
-    }
-    .pixel-body{
-      position:absolute;
-      left:20px;
-      top:52px;
-      width:68px;
-      height:58px;
-      border-radius: 16px 16px 8px 8px;
-      background:
-        linear-gradient(90deg, transparent 0 42%, rgba(255,255,255,0.65) 42% 58%, transparent 58%),
-        linear-gradient(180deg, rgba(255,94,0,0.92), rgba(160,48,16,0.94));
-      box-shadow:0 0 0 4px rgba(0,0,0,0.18);
-    }
-    .pixel-arm{
-      position:absolute;
-      width:50px;
-      height:12px;
-      border-radius: 10px;
-      background:#f0c097;
-      top:66px;
-      transform-origin:right center;
-      animation:eatMove .72s ease-in-out infinite;
-    }
-    .pixel-arm.left{
-      left:2px;
-      transform:rotate(-18deg);
-    }
-    .pixel-arm.right{
-      right:2px;
-      transform-origin:left center;
-      animation-delay:.1s;
-      transform:rotate(18deg);
-    }
-    .noodle-bowl{
-      position:absolute;
-      left:50%;
-      bottom:24px;
-      width:132px;
-      height:54px;
-      transform:translateX(-50%);
-      border-radius: 10px 10px 42px 42px;
-      background: linear-gradient(180deg, #f4f4f4, #cfcfcf);
-      border: 4px solid rgba(0,0,0,0.24);
-      box-shadow:0 10px 0 rgba(0,0,0,0.12);
-    }
-    .noodle-bowl::before{
-      content:"";
-      position:absolute;
-      left:14px;
-      right:14px;
-      top:9px;
-      height:13px;
-      border-radius:99px;
-      background:
-        repeating-linear-gradient(90deg, #ffb347 0 9px, #ffd166 9px 18px);
-      box-shadow:0 0 16px rgba(255,154,61,0.22);
-    }
-    .noodle-bowl::after{
-      content:"";
-      position:absolute;
-      left:36px;
-      top:-24px;
-      width:60px;
-      height:42px;
-      border-left:3px solid #ffd166;
-      border-right:3px solid #ffd166;
-      border-bottom:3px solid #ffd166;
-      border-radius:0 0 24px 24px;
-      animation:noodleLift .62s ease-in-out infinite;
-    }
-    .chopstick{
-      position:absolute;
-      left:50%;
-      bottom:92px;
-      width:104px;
-      height:4px;
-      border-radius:99px;
-      background:#f7d48c;
-      transform-origin:right center;
-      box-shadow:0 0 12px rgba(255,209,102,0.22);
-      animation:chopstickTap .62s ease-in-out infinite;
-    }
-    .chopstick.one{
-      margin-left:-94px;
-      transform:rotate(-18deg);
-    }
-    .chopstick.two{
-      margin-left:-92px;
-      bottom:84px;
-      transform-origin:left center;
-      transform:rotate(16deg);
-      animation-delay:.08s;
-    }
-    .steam{
-      position:absolute;
-      left:50%;
-      bottom:82px;
-      width:8px;
-      height:34px;
-      border-radius:99px;
-      border-left:2px solid rgba(255,255,255,0.42);
-      animation:steamRise 1.2s ease-in-out infinite;
-    }
-    .steam.one{ margin-left:-34px; }
-    .steam.two{ margin-left:0; animation-delay:.25s; }
-    .steam.three{ margin-left:34px; animation-delay:.5s; }
-    .confetti{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      opacity:.12;
-      filter: blur(.2px);
-      background:
-        radial-gradient(circle at 20% 20%, rgba(0,255,136,0.35), transparent 40%),
-        radial-gradient(circle at 80% 30%, rgba(255,94,0,0.35), transparent 45%),
-        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.12), transparent 45%);
-    }
-    @media (min-width: 900px){
-      .reward-sub{ max-width: 44ch; }
-    }
-    @media (max-width: 520px){
-      .reward-hero{ padding: 24px 12px; }
-      .reward-title,
-      .birthday-line{
-        letter-spacing: .5px;
-      }
-      .detail-row{
-        grid-template-columns: 1fr;
-        gap:4px;
-      }
-      .ramen-stage{
-        height: 184px;
-        margin-top: 14px;
-      }
-    }
-    @keyframes birthdayPulse{
-      0%,100%{ transform:scale(1); filter:brightness(1); }
-      50%{ transform:scale(1.025); filter:brightness(1.18); }
-    }
-    @keyframes eatMove{
-      0%,100%{ translate:0 0; }
-      50%{ translate:0 -8px; }
-    }
-    @keyframes hungryBob{
-      0%,100%{ transform:translateX(-50%) translateY(0) rotate(0deg); }
-      50%{ transform:translateX(-50%) translateY(6px) rotate(-1deg); }
-    }
-    @keyframes chewFace{
-      0%,100%{ transform:scaleY(1); }
-      50%{ transform:scaleY(1.45); }
-    }
-    @keyframes noodleLift{
-      0%,100%{ transform:translateY(0) scaleY(1); }
-      50%{ transform:translateY(-12px) scaleY(1.15); }
-    }
-    @keyframes chopstickTap{
-      0%,100%{ translate:0 0; }
-      50%{ translate:12px -10px; }
-    }
-    @keyframes arcadeFlash{
-      0%,100%{ box-shadow: inset 0 0 24px rgba(0,0,0,0.32), 0 0 14px rgba(255,94,0,0.12); }
-      50%{ box-shadow: inset 0 0 24px rgba(0,0,0,0.32), 0 0 30px rgba(255,94,0,0.28); }
-    }
-    @keyframes steamRise{
-      0%{ transform:translateY(10px) scaleY(.75); opacity:0; }
-      35%{ opacity:.8; }
-      100%{ transform:translateY(-18px) scaleY(1.12); opacity:0; }
-    }
-    @keyframes confettiDrop{
-      from{ transform:translateY(-48px); }
-      to{ transform:translateY(210px); }
-    }
-  </style>
 </head>
+<body>
+  <header data-topbar></header>
 
-<body class="fade-in">
-  <div class="confetti"></div>
+  <main class="wrap reward-wrap">
+    <section class="reward-panel fade-in">
+      <p class="kicker">FINAL BRIEFING UNLOCKED</p>
+      <h1 class="reward-title">Dinner Out</h1>
+      <p class="subhead">Mission complete. The reward is a proper evening out, no troubleshooting required.</p>
 
-  <div class="topbar">
-    <div class="topbar-inner stacked">
-      <div class="brand">
-        <span class="dot"></span>
-        <div>
-          <div class="title mono">REWARD UNLOCKED</div>
-          <div class="sub">LUKI13 // LEVEL 45</div>
-        </div>
+      <div class="progress success reward-progress" aria-label="complete progress">
+        <div class="bar" style="width:100%"></div>
       </div>
 
-      <div class="nav">
-        <a href="index.html">Boot</a>
-        <a href="profile.html">Profile</a>
-        <a href="missions.html">Trials</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="progress-wrap">
-    <div class="progress"><div class="bar" style="width: 100%;"></div></div>
-  </div>
-
-  <div class="wrap">
-    <div class="card card-pad section reward-hero">
-      <div class="reward-title">Dinner Out Unlocked</div>
-      <p class="reward-sub">You cleared all trials. Your final reward is live.</p>
-
-      <div class="reward-card section">
-        <h2 class="birthday-line">Happy Birthday</h2>
-
-        <div class="ramen-stage" aria-label="Animated pixel person eating with chopsticks">
-          <div class="steam one"></div>
-          <div class="steam two"></div>
-          <div class="steam three"></div>
-          <div class="pixel-person" aria-hidden="true">
-            <div class="pixel-head"></div>
-            <div class="pixel-body"></div>
-            <div class="pixel-arm left"></div>
-            <div class="pixel-arm right"></div>
-          </div>
-          <div class="chopstick one"></div>
-          <div class="chopstick two"></div>
-          <div class="noodle-bowl"></div>
-        </div>
-
-        <div class="dinner-details">
-          <div class="detail-row">
-            <span class="detail-label mono">DATE</span>
-            <span class="detail-value">13.04.26</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label mono">TIME</span>
-            <span class="detail-value">7.30</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label mono">PLACE</span>
-            <span class="detail-value"><a href="https://www.abeno.co.uk/" target="_blank" rel="noopener">Abeno</a></span>
-          </div>
-        </div>
-
-        <p class="reward-note mono">Briefing complete. Bring appetite. Optional side quest: dessert.</p>
+      <div class="terminal reward-copy">
+STATUS: 100% COMPLETE
+PLAYER: LUKI13
+OBJECTIVE: Eat well. Laugh loudly. Leave the dishes elsewhere.
+BONUS ROUND: Dessert remains highly recommended.
       </div>
 
-      <div class="btnrow section" style="justify-content:center;">
-        <a class="btn btn-primary" href="profile.html">Back to Profile</a>
-        <a class="btn btn-ghost" href="missions.html">Replay Trials</a>
+      <div class="btnrow centered">
+        <a class="btn btn-primary" href="missions.html">REPLAY TRIALS</a>
+        <button class="btn" id="resetAll" type="button">RESET PROGRESS</button>
       </div>
-    </div>
+    </section>
+  </main>
 
-    <div class="footer">Status: Success • Patch applied</div>
-  </div>
+  <script src="app.js"></script>
+  <script>
+    Level45.requireUnlocked("reward");
+    Level45.initShell("missions");
+    Level45.sfxWin();
 
-  <script src="./app.js"></script>
-<script>
-  const p = LEVEL45.getProgress();
-
-  // If Trial 03 not completed, redirect back
-  if (!p.response){
-    window.location.href = "missions.html";
-  }
-</script>
-
+    document.getElementById("resetAll").addEventListener("click", ()=>{
+      if(confirm("Reset all progress and return to missions?")){
+        Level45.resetProgress();
+        window.location.href = "missions.html";
+      }
+    });
+  </script>
 </body>
 </html>

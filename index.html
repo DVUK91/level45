@@ -1,55 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LUKI13 // Level 45</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LEVEL 45</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+<body>
+  <main class="boot-screen">
+    <section class="boot-console fade-in" aria-labelledby="bootTitle">
+      <p class="kicker">BOOT SEQUENCE</p>
+      <h1 id="bootTitle">LEVEL 45</h1>
+      <p class="subhead">Profile cache found. Signal stable. Birthday protocol ready.</p>
 
-<body class="fade-in">
+      <div class="terminal boot-lines" id="bootLines" aria-live="polite">Press START to load player profile.<span class="cursor"></span></div>
 
-  <!-- Top Bar -->
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <span class="dot"></span>
-        <div>
-          <div class="title mono">LUKI13 // LEVEL 45</div>
-          <div class="sub">Console Mode Active</div>
-        </div>
+      <div class="btnrow">
+        <button class="btn btn-primary arcade-start" id="startBoot" type="button">START</button>
+        <a class="btn" href="profile.html">SKIP BOOT</a>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <!-- Progress Bar (0% on start) -->
-  <div class="progress-wrap">
-    <div class="progress">
-      <div class="bar" style="width: 0%;"></div>
-    </div>
-  </div>
+  <script src="app.js"></script>
+  <script>
+    const lines = [
+      "SYSTEM BOOTING...",
+      "PLAYER PROFILE: LUKI13",
+      "LEVEL: 45",
+      "MODE: STEADY",
+      "SIGNAL: LOCKED",
+      "ROUTE: PROFILE.HTML"
+    ];
+    const boot = document.getElementById("bootLines");
+    const start = document.getElementById("startBoot");
 
-  <!-- Main Content -->
-  <div class="wrap" style="display:flex; align-items:center; justify-content:center; height:70vh; text-align:center; flex-direction:column;">
-
-      <div class="mono muted">SYSTEM READY<span class="cursor"></span></div>
-
-      <div class="h1">PRESS START</div>
-
-      <p class="subhead">
-        Player Profile Initialising...
-      </p>
-
-      <div class="btnrow" style="margin-top:20px;">
-        <a href="profile.html" class="btn btn-primary">START</a>
-      </div>
-
-  </div>
-
-  <div class="footer wrap">
-    Build Version 45.0 • Stable Release
-  </div>
-
+    start.addEventListener("click", async ()=>{
+      Level45.sfxOk();
+      start.disabled = true;
+      boot.textContent = "";
+      for(const line of lines){
+        boot.textContent += line + "\n";
+        await new Promise((resolve)=>setTimeout(resolve, 230));
+      }
+      setTimeout(()=>{ window.location.href = "profile.html"; }, 450);
+    });
+  </script>
 </body>
 </html>

@@ -1,114 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Player Profile // Level 45</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LEVEL 45 - Profile</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+<body>
+  <header data-topbar></header>
 
-<body class="fade-in">
+  <main class="wrap">
+    <section class="page-head fade-in">
+      <p class="kicker">PLAYER PROFILE LOADED</p>
+      <h1 class="h1">LUKI13</h1>
+      <p class="subhead">Built in the 80s. Running flawlessly.</p>
+    </section>
 
-  <!-- Top Bar -->
-  <div class="topbar">
-    <div class="topbar-inner stacked">
-      <div class="brand">
-        <span class="dot"></span>
-        <div>
-          <div class="title mono">PLAYER PROFILE LOADED</div>
-          <div class="sub">LUKI13 // LEVEL 45</div>
+    <section class="grid grid-2 section">
+      <div class="avatar-stage">
+        <div class="avatar-ring">
+          <img src="IMG_4865.jpeg" alt="Luki13 avatar" class="avatar" />
         </div>
+        <div class="scanline"></div>
+        <p class="avatar-mode mono">MODE: STEADY</p>
       </div>
 
-      <div class="nav">
-        <a href="index.html">Boot</a>
-        <a class="active">Profile</a>
-        <a href="missions.html">Trials</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Progress Bar -->
-  <div class="progress-wrap">
-    <div class="progress">
-      <div class="bar" style="width: 20%;"></div>
-    </div>
-  </div>
-
-  <div class="wrap">
-
-    <div class="grid grid-2">
-
-      <!-- Avatar Card -->
-      <div class="card card-pad profile-avatar-card">
+      <div class="panel panel-pad">
         <div class="card-head">
-          <div class="kicker mono">IDENTITY</div>
+          <p class="kicker">PLAYER STATS</p>
+          <p class="mono stat-xp"><span data-xp>0</span> XP</p>
         </div>
 
-        <div class="avatar-frame">
-          <img src="assets/avatar.jpg" alt="Luki13 Avatar" class="profile-avatar-img">
+        <div class="stat-list">
+          <div class="stat-row" data-value="96">
+            <span>Pattern Recognition</span>
+            <strong>96%</strong>
+            <div class="stat-track"><div class="stat-fill"></div></div>
+          </div>
+          <div class="stat-row" data-value="88">
+            <span>Decision Speed</span>
+            <strong>88%</strong>
+            <div class="stat-track"><div class="stat-fill"></div></div>
+          </div>
+          <div class="stat-row" data-value="92">
+            <span>Cultural Memory</span>
+            <strong>92%</strong>
+            <div class="stat-track"><div class="stat-fill"></div></div>
+          </div>
+          <div class="stat-row" data-value="99">
+            <span>Signal Stability</span>
+            <strong>99%</strong>
+            <div class="stat-track"><div class="stat-fill"></div></div>
+          </div>
+          <div class="stat-row" data-value="90">
+            <span>Meme Processing Unit</span>
+            <strong>90%</strong>
+            <div class="stat-track"><div class="stat-fill"></div></div>
+          </div>
         </div>
-
 
         <div class="hr"></div>
-
-        <div class="mono">
-          MODE: <span style="color: var(--orange);">STEADY</span>
-        </div>
-
-        <div class="muted" style="margin-top:8px;">
-          Built in the 80s. Running flawlessly.
-        </div>
-
+        <a class="btn btn-primary btn-wide arcade-start" href="missions.html">ENTER TRIALS</a>
       </div>
+    </section>
+  </main>
 
-      <!-- Stats Card -->
-      <div class="card card-pad profile-stats-card">
-
-        <div class="card-head">
-          <div class="kicker mono">PLAYER STATS</div>
-        </div>
-
-        <div class="section">
-          <div>Pattern Recognition</div>
-          <div class="progress"><div class="bar" style="width:90%;"></div></div>
-        </div>
-
-        <div class="section">
-          <div>Decision Speed</div>
-          <div class="progress"><div class="bar" style="width:95%;"></div></div>
-        </div>
-
-        <div class="section">
-          <div>Cultural Memory</div>
-          <div class="progress"><div class="bar" style="width:80%;"></div></div>
-        </div>
-
-        <div class="section">
-          <div>Signal Stability</div>
-          <div class="progress"><div class="bar" style="width:92%;"></div></div>
-        </div>
-
-        <div class="section">
-          <div>Meme Processing Unit</div>
-          <div class="progress success"><div class="bar" style="width:88%;"></div></div>
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="section" style="margin-top:30px;">
-      <div class="btnrow">
-        <a class="btn" href="missions.html">ENTER TRIALS</a>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="footer wrap">
-    Status: Stable • No patch required
-  </div>
-<script src="app.js"></script>
+  <script src="app.js"></script>
+  <script>
+    Level45.initShell("profile");
+    requestAnimationFrame(()=>{
+      document.querySelectorAll(".stat-row").forEach((row)=>{
+        row.querySelector(".stat-fill").style.width = row.dataset.value + "%";
+      });
+    });
+  </script>
 </body>
 </html>

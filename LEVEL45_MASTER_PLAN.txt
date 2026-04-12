@@ -1,0 +1,281 @@
+Perfetto.
+Questo è il tuo **documento master**. Copialo e salvalo sul tuo computer come:
+
+```
+LEVEL45_MASTER_PLAN.txt
+```
+
+Domani, quando riapri una nuova chat, mi incolli le prime 10 righe e ripartiamo esattamente da qui.
+
+---
+
+# 🎮 PROJECT: LUKI13 — LEVEL 45
+
+## 🎯 Obiettivo
+
+Creare un mini-gioco console style elegante, personale, minimal, non cringe, per il 45° compleanno.
+
+Tono:
+Minimal + micro animazioni + punchline sottili.
+
+Identità chiave:
+
+> He sees patterns others don’t.
+> He moves with intention.
+
+Colore principale:
+Neon Orange (#FF5E00)
+
+Secondario:
+Deep Green (#1F6F5B)
+
+---
+
+# 🧠 CONCEPT DEFINITIVO
+
+Titolo vibe:
+
+PLAYER PROFILE LOADED
+LUKI13
+LEVEL 45
+MODE: STEADY
+
+Direzione:
+Console moderna minimal.
+Non fantasy.
+Non cyberpunk esagerato.
+Non gamer infantile.
+
+Elegante + identitario.
+
+---
+
+# ✅ STATO ATTUALE (FUNZIONANTE)
+
+## Repository
+
+GitHub repo: `level45`
+GitHub Pages attivo:
+[https://dvuk91.github.io/level45/](https://dvuk91.github.io/level45/)
+
+---
+
+## File attuali
+
+### index.html
+
+Press Start screen funzionante.
+Topbar.
+Progress bar a 0%.
+Cursor lampeggiante.
+Pulsante START → profile.html
+
+---
+
+### style.css
+
+Design system completo:
+
+* Palette colori
+* Glow orange
+* Green accent
+* Topbar
+* Progress bar
+* Card layout
+* Button styles
+* Micro animazioni
+* Fade in
+* Glitch leggero
+
+Funzionante.
+
+---
+
+### profile.html
+
+Layout 2 colonne.
+
+Sinistra:
+Avatar caricato (assets/avatar.jpg)
+MODE: STEADY
+Frase:
+“Built in the 80s. Running flawlessly.”
+
+Destra:
+Stats attuali (da rifinire in futuro):
+
+* Pattern Recognition
+* Decision Speed
+* Cultural Memory
+* Signal Stability
+* Meme Processing Unit
+
+Pulsante:
+ENTER TRIALS → missions.html
+
+Funzionante.
+
+---
+
+### assets/avatar.jpg
+
+Avatar integrato correttamente.
+Problema cache risolto.
+Immagine visibile live.
+
+---
+
+# 🎮 STRUTTURA PROGETTO COMPLETA (NON ANCORA IMPLEMENTATA)
+
+Da costruire:
+
+missions.html
+minigame.html
+reward.html
+app.js (logica XP)
+
+---
+
+# 🧩 MISSIONI DEFINITIVE
+
+## Mission 1 — Pattern Scan
+
+Concept:
+Mini pattern recognition.
+Coerente con:
+“He sees patterns others don’t.”
+
+Interazione:
+Sequenza → scegliere pattern corretto.
+
+---
+
+## Mission 2 — Rhythm Alignment
+
+Concept:
+Timing su beat/waveform.
+Hip hop identity.
+Precision.
+
+---
+
+## Mission 3 — System Response
+
+Concept:
+Glitch → Override entro timer.
+Decision speed.
+
+---
+
+## Mini-game — Memory
+
+4 coppie:
+
+* Cassette
+* Controller
+* Graffiti tag
+* Cat meme
+
+Coerente con identità culturale.
+
+---
+
+# 🎁 Reward Page
+
+Reward sempre sbloccata.
+Messaggio varia in base a XP.
+
+Range XP:
+
+90–100:
+Elite Stability.
+
+60–89:
+Reliable as ever.
+
+<60:
+Still Level 45.
+
+Reveal:
+Dinner briefing.
+
+---
+
+# 🧱 PROSSIMO STEP PRECISO (DA DOVE RIPARTIRE)
+
+Ripartire da:
+
+👉 Creazione layout missions.html
+
+Solo layout.
+Nessuna logica ancora.
+3 card missioni.
+Stile coerente con profile.
+
+Poi:
+
+Creare app.js per:
+
+* XP tracking
+* localStorage
+* progress bar dinamica
+
+Non tutto insieme.
+Un blocco alla volta.
+
+---
+
+# 🎨 Estetica da mantenere
+
+Minimal.
+Molto spazio nero.
+Glow sottile.
+Punchline secche.
+Console vibe.
+Neon orange dominante.
+Green solo per success.
+
+---
+
+# ⚠️ Decisioni creative già prese
+
+* Classe = MODE: STEADY
+* No fantasy.
+* No “Technomancer”.
+* No cringe gamer.
+* Console start obbligatorio.
+* Reward sempre sbloccata.
+* Avatar con barra inferiore minimal.
+* Pattern + intention come tema centrale.
+
+---
+
+# 🛑 Punto attuale
+
+Sito stabile.
+Avatar visibile.
+Concept forte.
+Entrare ora in Mission Hub.
+
+Stanchezza presente → pausa strategica.
+
+---
+
+Domani quando riapri una nuova chat scrivi:
+
+> Stiamo riprendendo il progetto LEVEL 45 console style con neon orange, avatar già integrato, dobbiamo creare missions.html layout.
+
+E io saprò esattamente dove siamo.
+
+---
+
+Ultima cosa.
+
+Hai fatto una cosa molto seria oggi:
+Hai trasformato un’idea vaga in un concept coerente.
+
+Questo ha davvero il potenziale di essere una figata.
+
+Ora puoi cancellare la chat in tranquillità, salvare questo file, e la sorpresa resta intatta.
+
+Quando vuoi riprendere, io sono qui.

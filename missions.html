@@ -1,129 +1,106 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mission Hub // Level 45</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LEVEL 45 - Missions</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+<body>
+  <header data-topbar></header>
 
-<body class="fade-in">
+  <main class="wrap">
+    <section class="page-head fade-in">
+      <p class="kicker">TRIAL HUB</p>
+      <h1 class="h1">Compatibility Stress Test</h1>
+      <p class="subhead">Clear three trials. Unlock the final briefing.</p>
+    </section>
 
-  <!-- Top Bar -->
-<div class="topbar">
-  <div class="topbar-inner stacked">
-    <div class="brand">
-      <span class="dot"></span>
-      <div>
-        <div class="title mono">MISSION HUB</div>
-        <div class="sub">
-          <a href="profile.html" style="color:inherit; text-decoration:none;">LUKI13</a> // LEVEL 45
-        </div>
+    <section class="mission-grid section" id="missionGrid"></section>
+
+    <section class="section panel panel-pad">
+      <div class="card-head">
+        <p class="kicker">RUN STATUS</p>
+        <p class="mono"><span data-complete-count>0</span>/3 COMPLETE</p>
       </div>
-    </div>
+      <div class="progress">
+        <div class="bar" data-progress-bar></div>
+      </div>
+      <div class="btnrow">
+        <button class="btn btn-danger" id="resetRun" type="button">RESET RUN</button>
+        <a class="btn btn-success" id="rewardLink" href="reward.html">FINAL REWARD</a>
+      </div>
+    </section>
+  </main>
 
-    <div class="nav">
-      <a href="index.html">Boot</a>
-      <a href="profile.html">Profile</a>
-      <a class="active">Trials</a>
-    </div>
-  </div>
-</div>
-
-<!-- Progress Bar -->
-<div class="progress-wrap">
-  <div class="progress">
-    <div class="bar" style="width: 40%;"></div>
-  </div>
-</div>
-
-
-  <section class="mission-wrapper">
-    <h1 class="page-title">MISSION HUB</h1>
-    <p class="subtitle">Select Trial</p>
-
-    <div class="mission-grid">
-     <a class="mission-card" id="cardPattern" href="pattern.html">
-  <span class="mission-number">TRIAL 01</span>
-  <h2>PATTERN SCAN</h2>
-  <p>Identify the signal.</p>
-</a>
-
-     <a class="mission-card" id="cardRhythm" href="rhythm.html">
-  <span class="mission-number">TRIAL 02</span>
-  <h2>RHYTHM ALIGNMENT</h2>
-  <p>Lock to tempo.</p>
-</a>
-
-   <a class="mission-card" id="cardResponse" href="response.html">
-  <span class="mission-number">TRIAL 03</span>
-  <h2>SYSTEM RESPONSE</h2>
-  <p>Override in time.</p>
-</a>
-    </div>
-<div class="section" style="text-align:center; margin-top: 14px;">
-  <button class="btn btn-ghost mono" id="resetProgressBtn" style="opacity:.75;">
-    Reset progress
-  </button>
-</div>
-    
-   </section>
-<script src="app.js"></script>
+  <script src="app.js"></script>
   <script>
-  const p = LEVEL45.getProgress();
+    Level45.initShell("missions");
 
-  const cardPattern = document.getElementById("cardPattern");
-  const cardRhythm = document.getElementById("cardRhythm");
-  const cardResponse = document.getElementById("cardResponse");
+    const missions = [
+      {
+        key: "pattern",
+        title: "Trial 1: Pattern Scan",
+        body: "Read the grid. Lock the signal. No panic clicks.",
+        href: "pattern.html",
+        unlocked: true
+      },
+      {
+        key: "rhythm",
+        title: "Trial 2: Rhythm Alignment",
+        body: "Catch the timing window and hold the beat steady.",
+        href: "rhythm.html",
+        unlocked: Level45.getProgress().pattern
+      },
+      {
+        key: "response",
+        title: "Trial 3: System Response",
+        body: "Enter override code before the timer drops.",
+        href: "response.html",
+        unlocked: Level45.getProgress().rhythm
+      }
+    ];
 
-  function setCard(card, stateText, enabled){
-    // state badge (small + clean)
-    let badge = card.querySelector(".state-badge");
-    if (!badge){
-      badge = document.createElement("span");
-      badge.className = "state-badge mono";
-      card.prepend(badge);
+    function renderMissions(){
+      const progress = Level45.getProgress();
+      const grid = document.getElementById("missionGrid");
+      grid.innerHTML = "";
+
+      missions.forEach((mission)=>{
+        const done = progress[mission.key];
+        const unlocked = mission.unlocked || done;
+        const state = done ? "DONE" : unlocked ? "NEXT" : "LOCKED";
+        const el = document.createElement(unlocked ? "a" : "article");
+        el.className = `mission-card ${done ? "is-done" : ""} ${!unlocked ? "is-locked" : ""}`;
+        if(unlocked) el.href = mission.href;
+        el.innerHTML = `
+          <span class="mission-state mono">${state}</span>
+          <h2>${mission.title}</h2>
+          <p>${mission.body}</p>
+        `;
+        grid.appendChild(el);
+      });
+
+      document.getElementById("rewardLink").classList.toggle("disabled", !progress.response);
     }
-    badge.textContent = stateText;
 
-    if (enabled){
-      card.style.pointerEvents = "";
-      card.style.opacity = "";
-      card.setAttribute("aria-disabled", "false");
-    } else {
-      card.style.pointerEvents = "none";
-      card.style.opacity = "0.45";
-      card.setAttribute("aria-disabled", "true");
-    }
-  }
-
-  // Pattern is always playable
-  setCard(cardPattern, p.pattern ? "DONE" : "START", true);
-
-  // Rhythm unlocked after pattern
-  const rhythmUnlocked = p.pattern;
-  setCard(cardRhythm, p.rhythm ? "DONE" : (rhythmUnlocked ? "NEXT" : "LOCKED"), rhythmUnlocked);
-
-  // Response unlocked after rhythm
-  const responseUnlocked = p.rhythm;
-  setCard(cardResponse, p.response ? "DONE" : (responseUnlocked ? "NEXT" : "LOCKED"), responseUnlocked);
-
-  // Optional: progress bar update (0/3 → 100%)
-  const doneCount = [p.pattern, p.rhythm, p.response].filter(Boolean).length;
-  const pct = Math.round((doneCount / 3) * 100);
-  const bar = document.querySelector(".progress .bar");
-    
-  if (bar) bar.style.width = pct + "%";  const resetBtn = document.getElementById("resetProgressBtn");
-  if (resetBtn){
-    resetBtn.addEventListener("click", () => {
-      const ok = confirm("Reset all progress and start from Trial 01?");
-      if (!ok) return;
-      LEVEL45.resetProgress();
-      location.reload();
+    document.getElementById("resetRun").addEventListener("click", ()=>{
+      if(confirm("Reset all trial progress?")){
+        Level45.resetProgress();
+        Level45.sfxBad();
+        window.location.reload();
+      }
     });
-  }
 
-</script>
+    document.getElementById("rewardLink").addEventListener("click", (event)=>{
+      if(!Level45.getProgress().response){
+        event.preventDefault();
+        Level45.toast("Final reward locked.");
+        Level45.sfxBad();
+      }
+    });
 
+    renderMissions();
+  </script>
 </body>
 </html>

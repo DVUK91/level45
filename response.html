@@ -1,347 +1,116 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>System Response // Level 45</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LEVEL 45 - System Response</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    .mini{ display:flex; gap:10px; flex-wrap:wrap; opacity:0.85; }
-    .pill{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.04);
-      font-size: 12px;
-      letter-spacing: .6px;
-    }
-
-    .codebox{
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.04);
-      padding: 18px;
-      overflow: hidden;
-      box-shadow: 0 0 22px rgba(0,0,0,0.18) inset;
-    }
-
-    .override-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom: 10px;
-      opacity: .9;
-    }
-
-    .code-line{
-      font-size: 30px;
-      font-weight: 900;
-      letter-spacing: 4px;
-      word-spacing: 10px;
-      margin: 6px 0 2px;
-    }
-
-    .code-line .dim{ opacity:.35; }
-    .code-line .on{ color: var(--green); text-shadow: 0 0 16px rgba(0,255,136,0.20); }
-    .code-line .off{ color: var(--danger); text-shadow: 0 0 16px rgba(255,66,66,0.20); }
-
-    .meter{ height:10px; border-radius:999px; background: rgba(255,255,255,0.08); overflow:hidden; margin-top: 14px;}
-    .meter > div{ height:100%; width:100%; background: rgba(255,255,255,0.20); transform-origin:left; }
-
-    .inputs{
-      display:flex;
-      gap:12px;
-      margin-top: 14px;
-    }
-
-    .btn-bit{
-      flex: 1;
-      padding: 18px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      font-weight: 900;
-      letter-spacing: 2px;
-      font-size: 18px;
-      cursor:pointer;
-      touch-action: manipulation;
-      user-select: none;
-    }
-    .btn-bit:active{ transform: translateY(1px); }
-    .btn-0{ border-color: rgba(255,66,66,0.25); }
-    .btn-1{ border-color: rgba(0,255,136,0.25); }
-@media (min-width: 900px){
-  .inputs{
-    max-width: 420px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .btn-bit{
-    padding: 12px 12px;
-    font-size: 16px;
-  }
-  .code-line{
-    font-size: 34px;
-  }
-}
-
-    .typed{
-      margin-top: 12px;
-      font-size: 14px;
-      opacity: .85;
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .chip{
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.10);
-      background: rgba(0,0,0,0.20);
-      letter-spacing: 2px;
-      font-weight: 800;
-    }
-
-    .glitchflash{
-      animation: glitchFlash 180ms linear 1;
-    }
-    @keyframes glitchFlash{
-      0%{ transform: translate(0,0); filter:none; }
-      30%{ transform: translate(1px,-1px); filter: blur(.2px); }
-      60%{ transform: translate(-1px,1px); filter: blur(.2px); }
-      100%{ transform: translate(0,0); filter:none; }
-    }
-  </style>
 </head>
+<body>
+  <header data-topbar></header>
 
-<body class="fade-in">
-  <div class="topbar">
-    <div class="topbar-inner stacked">
-      <div class="brand">
-        <span class="dot"></span>
-        <div>
-          <div class="title mono">SYSTEM RESPONSE</div>
-          <div class="sub">LUKI13 // LEVEL 45</div>
-        </div>
+  <main class="wrap game-wrap">
+    <section class="game-head">
+      <p class="kicker">TRIAL 3</p>
+      <h1 class="h1">System Response</h1>
+      <p class="subhead">Enter the binary override before the timer expires.</p>
+    </section>
+
+    <section class="game-surface">
+      <div class="round-meta mono" id="roundMeta">ROUND 1/3</div>
+      <div class="trial-module response-module">
+        <div class="code-display mono" id="codeDisplay">----</div>
+        <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+        <p class="input-readout mono" id="inputReadout">INPUT: ----</p>
       </div>
-
-      <div class="nav">
-        <a href="index.html">Boot</a>
-        <a href="profile.html">Profile</a>
-        <a href="missions.html" class="active">Trials</a>
+      <p class="game-message" id="message">Match the code using 0 and 1.</p>
+      <div class="binary-controls">
+        <button class="btn binary-btn" type="button" data-bit="0">0</button>
+        <button class="btn binary-btn" type="button" data-bit="1">1</button>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <div class="progress-wrap">
-    <div class="progress"><div class="bar" style="width: 66%;"></div></div>
-  </div>
-
-  <div class="wrap">
-    <div class="card card-pad section">
-      <div class="kicker">TRIAL 03</div>
-      <h1 class="h1">Override sequence.</h1>
-      <p class="subhead">Enter the code before timeout. Mistake resets the round.</p>
-
-      <div class="section mini">
-        <div class="pill mono" id="roundPill">ROUND 1/3</div>
-        <div class="pill mono" id="statusPill">Status: Ready</div>
-      </div>
-
-      <div class="section codebox" id="codeBox">
-        <div class="override-title mono">
-          <span>OVERRIDE CODE</span>
-          <span id="timerPill" style="opacity:.7;">—</span>
-        </div>
-
-        <div class="code-line mono" id="codeLine">—</div>
-
-        <div class="meter"><div id="meterFill"></div></div>
-
-        <div class="typed mono">
-          INPUT:
-          <span class="chip" id="typedChip">—</span>
-        </div>
-      </div>
-
-      <div class="section inputs">
-        <button class="btn-bit btn-0" id="btn0">0</button>
-        <button class="btn-bit btn-1" id="btn1">1</button>
-      </div>
-
-      <div class="btnrow section">
-        <a class="btn btn-ghost" href="missions.html">← Back to Trials</a>
-      </div>
-    </div>
-
-    <div class="footer">Status: Stable • No patch required</div>
-  </div>
-
-  <script src="./app.js"></script>
-
+  <script src="app.js"></script>
   <script>
-    const TOTAL_ROUNDS = 3;
-    const CODE_LEN = 4;
+    Level45.requireUnlocked("response");
+    Level45.initShell("missions");
 
-    const roundPill = document.getElementById("roundPill");
-    const statusPill = document.getElementById("statusPill");
-    const timerPill = document.getElementById("timerPill");
-    const codeLine = document.getElementById("codeLine");
-    const typedChip = document.getElementById("typedChip");
-    const meterFill = document.getElementById("meterFill");
-    const codeBox = document.getElementById("codeBox");
-    const btn0 = document.getElementById("btn0");
-    const btn1 = document.getElementById("btn1");
-
-    let round = 1;
-    let code = [];
-    let typed = [];
-    let running = false;
-    let tStart = 0;
-    let duration = 0;
-    let rafId = null;
-
-    function showCompleteOverlay(nextHref){
-      const overlay = document.createElement("div");
-      overlay.className = "trial-overlay";
-      overlay.innerHTML = `
-        <div class="trial-overlay-inner">
-          <h2>MISSION COMPLETE</h2>
-          <p>Reward unlocking...</p>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-
-      document.body.classList.add("glitch");
-      setTimeout(() => document.body.classList.add("fade-out"), 3600);
-      setTimeout(() => window.location.href = nextHref, 4100);
-    }
-
-    function setStatus(msg){
-      statusPill.textContent = `Status: ${msg}`;
-    }
-
-    function updateHUD(){
-      roundPill.textContent = `ROUND ${round}/${TOTAL_ROUNDS}`;
-      typedChip.textContent = typed.length ? typed.join(" ") : "—";
-    }
-
-    function makeCode(){
-      code = Array.from({length: CODE_LEN}, () => (Math.random() < 0.5 ? 0 : 1));
-      renderCode();
-    }
-
-    function renderCode(){
-      // show code with colors
-      const html = code.map(bit => {
-        if (bit === 1) return `<span class="on">1</span>`;
-        return `<span class="off">0</span>`;
-      }).join(`<span class="dim"> </span>`);
-      codeLine.innerHTML = html;
-    }
+    const codes = ["1010", "0111", "1101"];
+    let round = 0;
+    let input = "";
+    let timer;
+    let startedAt;
+    let accepting = true;
+    const limit = 5200;
+    const codeDisplay = document.getElementById("codeDisplay");
+    const readout = document.getElementById("inputReadout");
+    const fill = document.getElementById("timerFill");
+    const message = document.getElementById("message");
+    const meta = document.getElementById("roundMeta");
 
     function startRound(){
-      typed = [];
-      updateHUD();
-      setStatus("Live");
-
-      makeCode();
-
-      duration = Math.max(1200, 2400 - (round - 1) * 200); // achievable
-      tStart = performance.now();
-      running = true;
+      accepting = true;
+      input = "";
+      codeDisplay.textContent = codes[round];
+      meta.textContent = `ROUND ${round + 1}/3`;
+      message.textContent = "Awaiting input.";
+      updateReadout();
+      startedAt = performance.now();
+      cancelAnimationFrame(timer);
       tick();
     }
 
-    function resetRound(){
-      running = false;
-      cancelAnimationFrame(rafId);
-      rafId = null;
-
-      codeBox.classList.remove("glitchflash");
-      void codeBox.offsetWidth; // restart anim
-      codeBox.classList.add("glitchflash");
-
-      setStatus("Reset");
-      timerPill.textContent = "—";
-      meterFill.style.transform = "scaleX(1)";
-
-      setTimeout(() => startRound(), 550);
-    }
-
-    function winRound(){
-      running = false;
-      cancelAnimationFrame(rafId);
-      rafId = null;
-
-      round += 1;
-      updateHUD();
-
-      if (round > TOTAL_ROUNDS){
-  setStatus("Complete");
-  btn0.disabled = true;
-  btn1.disabled = true;
-
-  LEVEL45.sfxWin();   // 🎉 unlock sound
-  LEVEL45.completeTrial("response", 25);
-  showCompleteOverlay("reward.html");
-  return;
-}
-
-
-      setStatus("Good");
-      setTimeout(() => startRound(), 450);
-    }
-
     function tick(){
-      if (!running) return;
-
-      const now = performance.now();
-      const elapsed = now - tStart;
-      const remaining = Math.max(0, duration - elapsed);
-      const ratio = remaining / duration;
-
-      meterFill.style.transform = `scaleX(${ratio})`;
-      timerPill.textContent = `${Math.ceil(remaining / 100) / 10}s`;
-
-      if (remaining <= 0){
-        resetRound();
+      const elapsed = performance.now() - startedAt;
+      const remaining = Math.max(0, 1 - elapsed / limit);
+      fill.style.width = `${remaining * 100}%`;
+      if(remaining <= 0){
+        failRound("Timeout. Round reset.");
         return;
       }
-
-      rafId = requestAnimationFrame(tick);
+      timer = requestAnimationFrame(tick);
     }
 
-    function inputBit(bit){
-  if (!running) return;
+    function updateReadout(){
+      readout.textContent = `INPUT: ${(input + "----").slice(0, 4)}`;
+    }
 
-  const i = typed.length;
-  const expected = code[i];
+    function failRound(text){
+      accepting = false;
+      cancelAnimationFrame(timer);
+      Level45.sfxBad();
+      message.textContent = text;
+      setTimeout(startRound, 650);
+    }
 
-  typed.push(bit);
-  updateHUD();
+    function pushBit(bit){
+      if(!accepting) return;
+      input += bit;
+      updateReadout();
+      Level45.sfxOk();
+      if(!codes[round].startsWith(input)){
+        failRound("Wrong input. Round reset.");
+        return;
+      }
+      if(input.length === 4){
+        accepting = false;
+        cancelAnimationFrame(timer);
+        round++;
+        if(round >= codes.length){
+          Level45.completeTrial("response");
+          Level45.showCompleteOverlay("reward.html");
+          return;
+        }
+        message.textContent = "Override accepted.";
+        setTimeout(startRound, 650);
+      }
+    }
 
-  if (bit !== expected){
-    LEVEL45.sfxBad();   // ❌ error sound
-    resetRound();
-    return;
-  }
+    document.querySelectorAll("[data-bit]").forEach((button)=>{
+      button.addEventListener("click", ()=>pushBit(button.dataset.bit));
+    });
 
-  LEVEL45.sfxOk();     // ✔️ correct beep
-
-  if (typed.length >= CODE_LEN){
-    winRound();
-  }
-}
-
-    btn0.addEventListener("click", () => inputBit(0));
-    btn1.addEventListener("click", () => inputBit(1));
-
-    updateHUD();
-    setStatus("Ready");
     startRound();
   </script>
 </body>
