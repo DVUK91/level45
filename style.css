@@ -388,6 +388,7 @@ button, a{
   display:block;
   border-radius:50%;
   object-fit:cover;
+  object-position:center 18%;
   filter:saturate(0.95) contrast(1.05);
   animation:counterRotate 16s linear infinite;
 }
