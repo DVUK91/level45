@@ -11,8 +11,8 @@
 
   <main class="wrap">
     <section class="page-head fade-in">
-      <p class="kicker">MISSION CONTROL</p>
-      <h1 class="h1">LEVEL 45 MISSION CONTROL</h1>
+      <p class="kicker">MISSION HUB</p>
+      <h1 class="h1">LEVEL 45</h1>
       <p class="subhead">Complete all three to unlock birthday reward.</p>
     </section>
 
@@ -40,21 +40,21 @@
     const missions = [
       {
         key: "pattern",
-        title: "Mission 1: Pattern Scan",
+        title: "1. Pattern Scan",
         body: "Read the grid. Lock the signal. No panic clicks.",
         href: "pattern.html",
         unlocked: true
       },
       {
         key: "rhythm",
-        title: "Mission 2: Rhythm Alignment",
+        title: "2. Rhythm Alignment",
         body: "Catch the timing window and hold the beat steady.",
         href: "rhythm.html",
         unlocked: Level45.getProgress().pattern
       },
       {
         key: "response",
-        title: "Mission 3: System Response",
+        title: "3. System Response",
         body: "Enter override code before the timer drops.",
         href: "response.html",
         unlocked: Level45.getProgress().rhythm
